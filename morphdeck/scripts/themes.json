@@ -1,0 +1,50 @@
+{
+  "midnight": {
+    "label": "Midnight",
+    "mood": "technology, AI, software, space, cybersecurity, the future, startups",
+    "dark": true,
+    "bg": "0A0B1A", "surface": "15172E", "text": "F4F5FF", "muted": "9AA0C3",
+    "accent": "7C5CFF", "accent2": "22D3EE",
+    "glow": 0.55, "tempo": 1.4
+  },
+  "emerald": {
+    "label": "Emerald",
+    "mood": "finance, investing, sustainability, climate, nature, growth, agriculture",
+    "dark": true,
+    "bg": "0C2620", "surface": "15372E", "text": "ECF8EF", "muted": "9CC5B0",
+    "accent": "B6F36B", "accent2": "3FB98A",
+    "glow": 0.45, "tempo": 1.4
+  },
+  "ember": {
+    "label": "Ember",
+    "mood": "history, energy, sport, culture, music, bold stories, conflict, passion",
+    "dark": true,
+    "bg": "150B09", "surface": "26140F", "text": "FFF1E8", "muted": "C9A89A",
+    "accent": "FF6A3D", "accent2": "FFB547",
+    "glow": 0.5, "tempo": 1.3
+  },
+  "aurum": {
+    "label": "Aurum",
+    "mood": "luxury, leadership, law, premium brands, banking, awards, architecture",
+    "dark": true,
+    "bg": "0B0B0B", "surface": "1A1916", "text": "F5EFE3", "muted": "A39A88",
+    "accent": "D4AF37", "accent2": "8C6A2C",
+    "glow": 0.35, "tempo": 1.6
+  },
+  "paper": {
+    "label": "Paper",
+    "mood": "business strategy, education, research, consulting, journalism, policy",
+    "dark": false,
+    "bg": "F4F1EA", "surface": "FFFFFF", "text": "16140F", "muted": "6B665C",
+    "accent": "E8432E", "accent2": "F2B705",
+    "glow": 0.3, "tempo": 1.2
+  },
+  "lagoon": {
+    "label": "Lagoon",
+    "mood": "health, medicine, science, wellbeing, travel, oceans, biology, calm topics",
+    "dark": false,
+    "bg": "E9F5F5", "surface": "FFFFFF", "text": "0B2A33", "muted": "557680",
+    "accent": "0FA3B1", "accent2": "FF8A5B",
+    "glow": 0.35, "tempo": 1.4
+  }
+}
