@@ -1,6 +1,6 @@
 ---
 name: morphdeck
-description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles and looping ambient motion, so the deck plays like one continuous film. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
+description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles, animated native charts, stock photos with Ken Burns zoom and looping ambient motion, so the deck plays like one continuous film. Supports slide count, motion intensity (calm/normal/dramatic), aspect ratio (16:9, 16:10, 4:3), tone/audience and six topic-matched themes. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
 ---
 
 # morphdeck
@@ -11,24 +11,42 @@ Builds a native `.pptx` whose motion lives inside PowerPoint itself:
   with the `!!` prefix (glows, a dashed ring, a disc, a panel, an accent bar and a
   progress line) changes position, size and rotation on each layout. Morph glides
   them between those poses, so the deck feels like one camera move.
-- **Entrance animations** on each slide's content: rise, fade, zoom, wipe, and titles
-  that build letter by letter. They start automatically after the transition and
-  are staggered with delays, so you never need extra clicks.
-- **Ambient loops**: the disc floats up and down and the ring sways, with smooth
-  start and end and auto-reverse.
+- **Entrance animations** on each slide's content: rise, fade, zoom, wipe, wheel,
+  and titles that build letter by letter or word by word. They start automatically
+  after the transition and are staggered with delays.
+- **Ambient loops**: the disc floats, the ring sways, and photos slowly push in
+  (Ken Burns).
 
 Everything stays editable in PowerPoint's Animation Pane and Selection Pane.
 
 ## Workflow
 
-### 1. Read the input
-The user gives a **topic title** and sometimes a **brief**. If there is no brief,
-write the content from your own knowledge. Keep facts accurate and do not invent
-statistics. If a number is uncertain, use a layout that doesn't need one. If the
-user mentions an audience or slide count, follow it. Otherwise aim for **8–12 slides**.
+### 1. Read the input and the options
+The user gives a **topic title** and sometimes a **brief**. They may also state options
+in plain words or as `key=value` pairs, for example
+`/morphdeck Black holes slides=8 motion=dramatic theme=midnight aspect=4:3 tone=kids images=yes`.
+
+| option | values | default when not stated |
+|---|---|---|
+| `slides` | a number | 8–12, sized to how much the topic needs |
+| `motion` | `calm`, `normal`, `dramatic` | `normal`. Use `calm` for corporate, medical or serious topics, and `dramatic` for pitches, launches, sport and storytelling |
+| `theme` | see step 2 | picked from the topic |
+| `aspect` | `16:9`, `16:10`, `4:3` | `16:9` |
+| `tone` | free text: `exec`, `academic`, `kids`, `casual`, `persuasive`, … | inferred from the topic and audience |
+| `images` | `yes`, `no`, or local paths and URLs the user provides | `yes` when photos would help the story, `no` for abstract topics |
+| `brand` | hex colours | theme colours |
+
+Hit the slide count exactly when the user gives one. Ask a question only when
+something blocks you. Otherwise choose defaults and list them in the delivery message.
+
+If there is no brief, write the content from your own knowledge. Keep facts
+accurate. **Never invent statistics, chart data or quotes.** Use a chart or
+`stat` only for figures you are confident of, and put the source in `source`
+or `note`. Attribute a `quote` only to someone who really said it; otherwise
+use `statement`.
 
 ### 2. Pick a theme
-Match the topic's mood. Run `python3 scripts/build_deck.py --list-themes` to see them:
+Run `python3 scripts/build_deck.py --list-themes` to see them:
 
 | theme | look | use for |
 |---|---|---|
@@ -39,61 +57,77 @@ Match the topic's mood. Run `python3 scripts/build_deck.py --list-themes` to see
 | `paper` | warm off-white, red and yellow | business, education, research, policy |
 | `lagoon` | pale teal, coral | health, science, wellbeing, travel |
 
-When the user names a brand colour, add `"theme_overrides": {"accent": "HEX"}`.
+When the user gives brand colours, add `"theme_overrides": {"accent": "HEX", "accent2": "HEX"}`.
 
-### 3. Write the storyline
-Write it as a short film, not as a report:
+### 3. Write the storyline for the tone
+Write it as a short film:
 - **Slide 1 `title`**: hook kicker, title, one-line promise.
-- **Slide 2**: usually a `statement`, the big idea in one sentence.
-- **Middle**: mix `section`, `bullets`, `stat`, `cards`, `timeline`, `compare`
-  and `split`. **Never use the same layout twice in a row.** Morph looks best when
-  consecutive layouts differ, because the stage moves further. Use a `section`
-  divider every 3–4 slides in decks of 10 or more slides.
-- **Last slide `closing`**: a memorable line plus a thank-you or call to action.
-- Put talking points in `notes` (speaker notes), not on the slide.
+- **Slide 2**: a `statement` with the big idea, or an `agenda` for decks of 10 or more slides.
+- **Middle**: mix the content layouts. **Never use the same layout twice in a row**,
+  because the stage moves furthest between different layouts. Use a `section` every
+  3–4 slides in long decks. A `question` makes a good pause before a turning point.
+- **Last slide `closing`**.
+- Put talking points in `notes` (speaker notes), written in the chosen tone.
 
-Text budgets (the generator shrinks fonts to fit, but less text looks better):
-titles ≤ 8 words, bullet points ≤ 12 words, up to 5 points, card text ≤ 18 words,
-statement ≤ 25 words, timeline step text ≤ 14 words.
+How each tone changes the writing:
+- **exec**: lead with the conclusion, use numbers, `stat` and `chart` slides, short noun phrases.
+- **academic**: definitions, sources in `note`/`source`, `timeline` and `compare` slides.
+- **kids**: simple words, one idea per slide, questions, `calm` or `normal` motion, bright themes.
+- **persuasive** or pitch: problem → stakes → solution → proof → call to action, `dramatic` motion.
 
-Full field reference for every layout: [references/spec.md](references/spec.md).
-Worked example: [examples/black-holes.json](examples/black-holes.json).
+Text budgets (fonts shrink to fit, but less text looks better): titles ≤ 8 words,
+up to 5 bullet points of ≤ 12 words each, card text ≤ 18 words, statement ≤ 25 words,
+timeline and process step text ≤ 14 words.
 
-### 4. Build
-Write the spec to `<slug>.json` in the user's working directory, then:
+Layout fields: [references/spec.md](references/spec.md). Examples:
+[examples/black-holes.json](examples/black-holes.json) and
+[examples/electric-vehicles.json](examples/electric-vehicles.json), which uses
+charts, stock images, agenda, process and question slides.
+
+### 4. Images
+Image fields (`image` on `image`, `split`, `bullets` and `quote` slides, people
+photos, and `images` on `gallery`) accept:
+- `"photos/x.jpg"`: a local file, relative to the spec. Use this for anything the user supplies.
+- `"https://…"`: downloaded once.
+- `"stock:<search words>"`: a stock photo. The search uses Pexels if `PEXELS_API_KEY`
+  is set, otherwise Openverse (Creative Commons, no key needed).
+
+Write concrete, visual search words, such as `stock:wind turbines at sunset` rather than
+`stock:renewable energy policy`. Credits are added to that slide's speaker notes
+automatically. Downloads are cached in `images/` next to the spec. A new search takes
+about 30–120 s; the build prints a warning and carries on if nothing is found.
+Never use stock photos to show specific real people. Use initials (the default in
+`people`) or photos the user supplies.
+
+### 5. Build
+Write the spec to `<slug>.json` in the user's working directory, with
+`"options": {"slides": N, "motion": "...", "aspect": "...", "tone": "..."}`. Then run:
 
 ```bash
 python3 ~/.claude/skills/morphdeck/scripts/build_deck.py <slug>.json <slug>.pptx
 ```
 
-Needs `python-pptx`. If the import fails, run `python3 -m pip install --user python-pptx`.
+`--theme`, `--motion` and `--aspect` on the command line override the spec. This is
+useful for showing the user two looks. Needs `python-pptx`; if the import fails,
+run `python3 -m pip install --user python-pptx`.
 
-### 5. Check it
-On macOS with PowerPoint installed, render static previews and **look at the contact sheet**:
+### 6. Check it
+On macOS with PowerPoint installed, render previews and **look at the contact sheet**:
 
 ```bash
 python3 ~/.claude/skills/morphdeck/scripts/preview.py <slug>.pptx <scratch-dir>/preview
 ```
 
 (Needs `pymupdf` and `pillow`. Add `--restart` if a font was just installed.)
-Check for text that overflows its box, words that look cramped, or text that
-collides with stage shapes. Fix problems by shortening the text in the spec,
-then rebuild. Previews show final frames only. Morph and animation timing can
-only be seen in PowerPoint's slideshow. Without PowerPoint, skip this step and
-say so.
+Fix text that overflows, words that look cramped, text that collides with stage
+shapes, and badly cropped photos by editing the spec and rebuilding. Previews show
+final frames only, so Morph and timing can only be judged in PowerPoint. Without
+PowerPoint, skip this step and say so.
 
-### 6. Deliver
-Give the `.pptx` path. Tell the user:
+### 7. Deliver
+Give the `.pptx` path and the options you chose (theme, motion, aspect, slide
+count, tone). Tell the user:
 - Play it as a slideshow in **PowerPoint 2019+ / Microsoft 365**. Keynote and Google
   Slides replace Morph with a fade.
-- The **Unbounded** font must be installed (free on Google Fonts). Otherwise
-  PowerPoint substitutes another font and the spacing changes.
-- To restyle, edit the JSON and rebuild, or edit directly in PowerPoint. Keep the
-  `!!` names on stage shapes if they duplicate slides, or Morph stops matching them.
-
-## Tuning knobs
-- `"fonts": {"heading": "...", "body": "..."}` swaps the fonts (default Unbounded for both).
-- `theme_overrides` can set any theme key: `bg`, `surface`, `text`, `muted`,
-  `accent`, `accent2`, `glow` (glow strength 0–1) and `tempo` (Morph duration in seconds).
-- `--theme NAME` on the command line overrides the spec's theme. This is useful
-  for showing the user two looks.
+- The **Unbounded** font must be installed (free on Google Fonts).
+- Stock photo credits are in the speaker notes. Keep them if the deck is shared publicly.

@@ -1,0 +1,27 @@
+{
+  "title": "The Electric Shift",
+  "theme": "emerald",
+  "options": {"slides": 11, "motion": "dramatic", "aspect": "16:9", "tone": "general audience"},
+  "slides": [
+    {"layout": "title", "kicker": "Transport in transition", "title": "The Electric Shift", "subtitle": "How electric cars went from niche to mainstream in five years.", "byline": "Example deck · morphdeck"},
+    {"layout": "agenda", "title": "Where we're going"},
+    {"layout": "section", "number": "01", "title": "The surge", "subtitle": "Sales took off after 2020."},
+    {"layout": "image", "kicker": "On the road", "title": "Plugged in", "text": "Charging points are spreading through cities, highways and homes.", "image": "stock:electric car charging"},
+    {"layout": "chart", "title": "Global EV sales, millions", "type": "column", "categories": ["2019", "2020", "2021", "2022", "2023"], "series": [{"name": "EV sales", "values": [2.1, 3.0, 6.6, 10.5, 13.8]}], "number_format": "0.0", "axis_format": "0", "takeaway": "6x in four years", "caption": "Battery-electric plus plug-in hybrid cars.", "source": "IEA Global EV Outlook 2024"},
+    {"layout": "chart", "title": "Where 2023's EVs were sold", "type": "donut", "categories": ["China", "Europe", "United States", "Rest of world"], "series": [{"name": "Share", "values": [60, 25, 10, 5]}], "number_format": "0\"%\"", "takeaway": "China leads", "caption": "Share of global electric car sales.", "source": "IEA Global EV Outlook 2024"},
+    {"layout": "section", "number": "02", "title": "What made it happen", "subtitle": "Cheaper batteries, stronger policy, better cars."},
+    {"layout": "process", "title": "The adoption flywheel", "center": "Flywheel", "steps": [
+      {"label": "Cheaper batteries", "text": "Battery pack prices fell sharply over the decade."},
+      {"label": "More models", "text": "Carmakers launch EVs in every segment."},
+      {"label": "More buyers", "text": "Sales volume grows and scale cuts costs."},
+      {"label": "More chargers", "text": "Demand pulls in charging investment."}
+    ]},
+    {"layout": "gallery", "title": "The new streetscape", "images": [
+      {"image": "stock:electric vehicle charging station", "caption": "Fast chargers"},
+      {"image": "stock:electric bus city", "caption": "Electric buses"},
+      {"image": "stock:wind turbines", "caption": "Clean power"}
+    ]},
+    {"layout": "question", "kicker": "Big question", "text": "Can the grid keep up?", "subtitle": "Millions of cars plugging in at once is a new kind of demand."},
+    {"layout": "closing", "title": "The road ahead is electric", "subtitle": "Thank you. Questions?"}
+  ]
+}
