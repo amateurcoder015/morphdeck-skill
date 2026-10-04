@@ -82,7 +82,7 @@ How each density changes the deck (the build prints a check and warns if the dec
 | density | images | text | favoured layouts |
 |---|---|---|---|
 | `text` (content-heavy) | ≤ 25% of slides, only where they explain something | up to 70 words a slide; 5–6 bullets; full sentences in `detail` | `detail`, `bullets`, `cards`, `compare`, `timeline`, `chart`, `stat` |
-| `balanced` | 20–55% of slides | about 45 words a slide | a mix of everything |
+| `balanced` | 15–55% of slides | about 45 words a slide | a mix of everything |
 | `visual` (image-heavy) | ≥ 50% of slides | about 25 words a slide; titles ≤ 6 words; ≤ 3 bullets | `image`, `gallery`, `split` and `bullets` with `image`, `quote` with a photo, `stat`, `question` |
 
 Text budgets for `balanced` (fonts shrink to fit, but less text looks better): titles

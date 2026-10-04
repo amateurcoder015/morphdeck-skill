@@ -1,30 +1,118 @@
 {
   "title": "Black Holes",
   "theme": "midnight",
+  "options": {
+    "density": "text"
+  },
   "slides": [
-    {"layout": "title", "kicker": "A journey to the edge", "title": "Black Holes", "subtitle": "Where gravity wins, light gives up, and physics gets weird.", "byline": "Astronomy 101 · Guest lecture"},
-    {"layout": "statement", "text": "A black hole is not a hole. It is matter squeezed so tight that nothing can escape it.", "attribution": "The short version"},
-    {"layout": "section", "number": "01", "title": "How they are born", "subtitle": "Most black holes start as giant stars that run out of fuel."},
-    {"layout": "timeline", "title": "The death of a giant star", "steps": [
-      {"label": "Fuel", "text": "A star 20x the Sun burns hydrogen for millions of years."},
-      {"label": "Collapse", "text": "Fuel runs out. Gravity crushes the core in under a second."},
-      {"label": "Supernova", "text": "The outer layers blast away in a blinding explosion."},
-      {"label": "Singularity", "text": "The core keeps shrinking into a point of infinite density."}
-    ]},
-    {"layout": "stat", "value": "6.5", "suffix": "B", "label": "Solar masses in M87*", "note": "The first black hole ever photographed, by the Event Horizon Telescope in 2019.", "context": "55 million light-years away"},
-    {"layout": "cards", "title": "Three kinds of black hole", "cards": [
-      {"title": "Stellar", "text": "5 to 100 Suns. Left behind by collapsing massive stars."},
-      {"title": "Intermediate", "text": "Hundreds to thousands of Suns. Rare, and hard to find."},
-      {"title": "Supermassive", "text": "Millions to billions of Suns. One sits at the centre of most galaxies."}
-    ]},
-    {"layout": "bullets", "title": "What happens if you fall in", "points": [
-      "Time slows down for you, as seen from far away.",
-      "Tidal forces stretch you thin: spaghettification.",
-      "Past the event horizon, every path leads inward.",
-      "No signal you send can ever get back out."
-    ], "aside": "No way back"},
-    {"layout": "compare", "title": "Myth vs reality", "left": {"title": "Myth", "points": ["They suck in everything nearby", "They are holes in space", "We can never see them"]}, "right": {"title": "Reality", "points": ["From far away they pull like any other mass", "They are extremely dense objects", "We image their glowing disks and shadows"]}},
-    {"layout": "split", "kicker": "Open question", "title": "The information paradox", "text": "Hawking showed black holes slowly evaporate. If they vanish, what happens to the information about everything that fell in? Physicists are still arguing.", "aside": "Where does it go?"},
-    {"layout": "closing", "title": "The universe is stranger than we think", "subtitle": "Thank you. Questions?"}
+    {
+      "layout": "title",
+      "kicker": "A journey to the edge",
+      "title": "Black Holes",
+      "subtitle": "Where gravity wins, light gives up, and physics gets weird.",
+      "byline": "Astronomy 101 · Guest lecture"
+    },
+    {
+      "layout": "statement",
+      "text": "A black hole is not a hole. It is matter squeezed so tight that nothing can escape it.",
+      "attribution": "The short version"
+    },
+    {
+      "layout": "section",
+      "number": "01",
+      "title": "How they are born",
+      "subtitle": "Most black holes start as giant stars that run out of fuel."
+    },
+    {
+      "layout": "timeline",
+      "title": "The death of a giant star",
+      "steps": [
+        {
+          "label": "Fuel",
+          "text": "A star 20x the Sun burns hydrogen for millions of years."
+        },
+        {
+          "label": "Collapse",
+          "text": "Fuel runs out. Gravity crushes the core in under a second."
+        },
+        {
+          "label": "Supernova",
+          "text": "The outer layers blast away in a blinding explosion."
+        },
+        {
+          "label": "Singularity",
+          "text": "The core keeps shrinking into a point of infinite density."
+        }
+      ]
+    },
+    {
+      "layout": "stat",
+      "value": "6.5",
+      "suffix": "B",
+      "label": "Solar masses in M87*",
+      "note": "The first black hole ever photographed, by the Event Horizon Telescope in 2019.",
+      "context": "55 million light-years away"
+    },
+    {
+      "layout": "cards",
+      "title": "Three kinds of black hole",
+      "cards": [
+        {
+          "title": "Stellar",
+          "text": "5 to 100 Suns. Left behind by collapsing massive stars."
+        },
+        {
+          "title": "Intermediate",
+          "text": "Hundreds to thousands of Suns. Rare, and hard to find."
+        },
+        {
+          "title": "Supermassive",
+          "text": "Millions to billions of Suns. One sits at the centre of most galaxies."
+        }
+      ]
+    },
+    {
+      "layout": "bullets",
+      "title": "What happens if you fall in",
+      "points": [
+        "Time slows down for you, as seen from far away.",
+        "Tidal forces stretch you thin: spaghettification.",
+        "Past the event horizon, every path leads inward.",
+        "No signal you send can ever get back out."
+      ],
+      "aside": "No way back"
+    },
+    {
+      "layout": "compare",
+      "title": "Myth vs reality",
+      "left": {
+        "title": "Myth",
+        "points": [
+          "They suck in everything nearby",
+          "They are holes in space",
+          "We can never see them"
+        ]
+      },
+      "right": {
+        "title": "Reality",
+        "points": [
+          "From far away they pull like any other mass",
+          "They are extremely dense objects",
+          "We image their glowing disks and shadows"
+        ]
+      }
+    },
+    {
+      "layout": "split",
+      "kicker": "Open question",
+      "title": "The information paradox",
+      "text": "Hawking showed black holes slowly evaporate. If they vanish, what happens to the information about everything that fell in? Physicists are still arguing.",
+      "aside": "Where does it go?"
+    },
+    {
+      "layout": "closing",
+      "title": "The universe is stranger than we think",
+      "subtitle": "Thank you. Questions?"
+    }
   ]
 }

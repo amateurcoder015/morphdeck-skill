@@ -1134,7 +1134,7 @@ class Anim:
 
 
 DENSITY = {  # target share of slides carrying a photo, max average words per slide
-    "text": (0.0, 0.25, 70), "balanced": (0.2, 0.55, 45), "visual": (0.5, 1.0, 25),
+    "text": (0.0, 0.25, 70), "balanced": (0.15, 0.55, 45), "visual": (0.5, 1.0, 25),
 }
 
 
