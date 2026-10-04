@@ -24,11 +24,13 @@ BOX = os.path.expanduser("~/Library/Containers/com.microsoft.Powerpoint/Data/mor
 
 def export_pdf(pptx, restart=False):
     os.makedirs(BOX, exist_ok=True)
-    src = os.path.join(BOX, "preview.pptx")
-    pdf = os.path.join(BOX, "preview.pdf")
+    for old in glob.glob(os.path.join(BOX, "preview-*")):
+        os.remove(old)
+    # unique name: PowerPoint reuses an already-open document with the same path
+    stem = f"preview-{int(time.time() * 1000)}"
+    src = os.path.join(BOX, stem + ".pptx")
+    pdf = os.path.join(BOX, stem + ".pdf")
     shutil.copy(pptx, src)
-    if os.path.exists(pdf):
-        os.remove(pdf)
     if restart:  # PowerPoint only picks up newly installed fonts after a restart
         subprocess.run(["osascript", "-e", 'tell application "Microsoft PowerPoint" to quit'])
         time.sleep(3)

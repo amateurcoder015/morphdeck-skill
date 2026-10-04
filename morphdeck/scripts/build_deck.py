@@ -239,7 +239,9 @@ def fit(text, w, h, max_pt, min_pt=10, wf=0.64, lh=1.18):
             continue  # never let a single word break mid-way
         if _wrap_lines(text, cpl) * pt / 72 * lh <= h:
             return pt
-    return min_pt
+    # nothing fits: still never split the longest word
+    longest = max((len(word) for word in text.split()), default=1)
+    return max(6, min(min_pt, int(w / (longest * wf) * 72)))
 
 
 class Deck:
@@ -331,7 +333,7 @@ class Deck:
         return shape
 
     def head(self, text, w, h, max_pt, min_pt=18, color=None, lh=1.02):
-        size = self.fit(text, w, h, max_pt, min_pt, wf=0.74, lh=lh * 1.12)
+        size = self.fit(text, w, h, max_pt, min_pt, wf=0.78, lh=lh * 1.12)
         return {"text": text, "size": size, "bold": True, "font": self.head_font,
                 "color": color or self.t["text"], "lh": lh}
 
