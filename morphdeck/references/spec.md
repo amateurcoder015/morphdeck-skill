@@ -21,6 +21,7 @@ Only `slides` is required. Every slide can also carry `"notes": "speaker notes"`
 | key | values | effect |
 |---|---|---|
 | `slides` | number | The target count. The build warns if the spec has a different number of slides. |
+| `motif` | `orbit` / `prism` / `swiss` / `flow` | Shape language of the stage (orbs, Bauhaus geometry, Swiss blocks, ribbons). Defaults to the theme's motif. |
 | `motion` | `calm` / `normal` / `dramatic` | Morph speed, delay between items, rise distance, zoom depth, letter-by-letter titles (off in `calm`), ring spin per slide, sway and float size, Ken Burns depth. |
 | `aspect` | `16:9` / `16:10` / `4:3` | Slide size. Layouts reflow, and round shapes stay round. |
 | `tone` | free text | Guides the writing only; the script ignores it. |

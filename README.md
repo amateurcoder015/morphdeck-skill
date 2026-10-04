@@ -8,7 +8,7 @@ A [Claude Code](https://claude.com/claude-code) skill. Give it a topic title, an
 - **Native animated charts**: column, bar, line, area, stacked, donut and pie charts in theme colours. The data stays editable in PowerPoint.
 - **Images**: your own files, URLs, `stock:<search>` photos fetched automatically (Openverse, or Pexels with a free key), or `ai:<prompt>` images generated free with Cloudflare Workers AI (FLUX.1 schnell). Credits go into the speaker notes.
 - **Clickable agenda**: agenda items jump to their sections, and each section links back, with Morph on every jump.
-- **6 themes**, chosen to match the topic: `midnight`, `emerald`, `ember`, `aurum`, `paper` and `lagoon`.
+- **6 themes × 4 motifs**: colour themes (`midnight`, `emerald`, `ember`, `aurum`, `paper`, `lagoon`) combine with shape styles for the morphing stage: `orbit` (glowing orbs and rings), `prism` (Bauhaus squares and triangles), `swiss` (flat editorial blocks) and `flow` (ribbons and arcs).
 - **19 layouts**: title, agenda, section, statement, question, quote, bullets, detail, stat, chart, cards, people, timeline, process, compare, split, image (full-bleed), gallery and closing.
 
 ## Customise it
@@ -18,6 +18,7 @@ A [Claude Code](https://claude.com/claude-code) skill. Give it a topic title, an
 | `slides` | any number | 8–12, depending on the topic |
 | `motion` | `calm`, `normal`, `dramatic` | `normal` |
 | `theme` | `midnight`, `emerald`, `ember`, `aurum`, `paper`, `lagoon` | picked from the topic |
+| `motif` | `orbit`, `prism`, `swiss`, `flow` | the theme's motif |
 | `aspect` | `16:9`, `16:10`, `4:3` | `16:9` |
 | `tone` | `exec`, `academic`, `kids`, `casual`, `persuasive`, or anything else | inferred from the topic |
 | `density` | `text` (content-heavy), `balanced`, `visual` (image-heavy) | `balanced` |

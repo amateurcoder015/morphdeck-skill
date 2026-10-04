@@ -1,6 +1,6 @@
 ---
 name: morphdeck
-description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles, animated native charts, stock or free AI-generated (Cloudflare FLUX) photos with Ken Burns zoom, a clickable agenda and looping ambient motion, so the deck plays like one continuous film. Supports slide count, content density (text-heavy, balanced, image-heavy), motion intensity (calm/normal/dramatic), aspect ratio (16:9, 16:10, 4:3), tone/audience and six topic-matched themes. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
+description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles, animated native charts, stock or free AI-generated (Cloudflare FLUX) photos with Ken Burns zoom, a clickable agenda and looping ambient motion, so the deck plays like one continuous film. Supports four stage motifs (orbs, Bauhaus geometry, Swiss blocks, ribbons), slide count, content density (text-heavy, balanced, image-heavy), motion intensity (calm/normal/dramatic), aspect ratio (16:9, 16:10, 4:3), tone/audience and six topic-matched themes. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
 ---
 
 # morphdeck
@@ -31,6 +31,7 @@ in plain words or as `key=value` pairs, for example
 | `slides` | a number | 8–12, sized to how much the topic needs |
 | `motion` | `calm`, `normal`, `dramatic` | `normal`. Use `calm` for corporate, medical or serious topics, and `dramatic` for pitches, launches, sport and storytelling |
 | `theme` | see step 2 | picked from the topic |
+| `motif` | `orbit`, `prism`, `swiss`, `flow` | the theme's own motif |
 | `aspect` | `16:9`, `16:10`, `4:3` | `16:9` |
 | `tone` | free text: `exec`, `academic`, `kids`, `casual`, `persuasive`, … | inferred from the topic and audience |
 | `density` | `text` (content-heavy), `balanced`, `visual` (image-heavy) | `balanced` |
@@ -60,6 +61,18 @@ Run `python3 scripts/build_deck.py --list-themes` to see them:
 | `lagoon` | pale teal, coral | health, science, wellbeing, travel |
 
 When the user gives brand colours, add `"theme_overrides": {"accent": "HEX", "accent2": "HEX"}`.
+
+**Motif** is the shape language of the morphing stage. It is independent of colour,
+so any theme can take any motif (`"options": {"motif": "prism"}`):
+
+| motif | shapes | default for | feels |
+|---|---|---|---|
+| `orbit` | soft glow orbs, a dashed ring, a dot | midnight | cosmic, techy, dreamy |
+| `prism` | tilted squares, triangles, a diamond frame, a square that turns as it glides | ember | bold, Bauhaus, energetic |
+| `swiss` | flat colour blocks, hairline frames, no rotation | aurum, paper | editorial, corporate, precise |
+| `flow` | stretched ribbon glows, an open arc, a pill | emerald, lagoon | organic, calm, natural |
+
+Vary the motif between decks so every presentation doesn't look the same.
 
 ### 3. Write the storyline for the tone and density
 Write it as a short film:

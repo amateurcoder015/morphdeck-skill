@@ -66,8 +66,8 @@ POSES = {
                       disc=(5.15, 0.95, 0.45, 0.45), panel=(5.85, 0.9, 0.04, 5.7), bar=(0.9, 3.35, 1.0, 0.09)),
     "statement": dict(ga=(-3.2, -3.2, 9.0, 9.0), gb=(9.2, 3.4, 6.0, 6.0), ring=(-1.9, 4.2, 4.6, 4.6),
                       disc=(12.0, 0.9, 0.45, 0.45), panel=(1.3, 1.15, 10.7, 5.2), bar=(1.95, 1.75, 0.9, 0.09)),
-    "question":  dict(ga=(3.2, -0.8, 7.0, 7.0), gb=(-2.8, -2.8, 5.0, 5.0), ring=(3.92, 0.5, 5.5, 5.5),
-                      disc=(10.4, 1.0, 0.4, 0.4), panel=(0, 0, 0.16, DH), bar=(6.17, 5.25, 1.0, 0.09)),
+    "question":  dict(ga=(2.67, -1.25, 8.0, 8.0), gb=(-2.8, -2.8, 5.0, 5.0), ring=(2.92, -0.5, 7.5, 7.5),
+                      disc=(10.75, 1.0, 0.4, 0.4), panel=(0, 0, 0.16, DH), bar=(6.17, 4.5, 1.0, 0.09)),
     "quote":     dict(ga=(7.6, 0.0, 7.5, 7.5), gb=(-3.0, 4.6, 5.0, 5.0), ring=(8.65, 1.15, 4.3, 4.3),
                       disc=(12.25, 1.2, 0.5, 0.5), panel=(0, 0, 0.16, DH), bar=(0.9, 5.25, 0.9, 0.09)),
     "bullets":   dict(ga=(7.6, 0.6, 8.0, 8.0), gb=(-3.0, -3.0, 5.5, 5.5), ring=(9.1, 1.45, 4.6, 4.6),
@@ -94,10 +94,15 @@ POSES = {
                       disc=(12.0, 6.5, 0.4, 0.4), panel=(0, 0, DW, DH), bar=(0.9, 4.6, 1.0, 0.09)),
     "gallery":   dict(ga=(9.0, -4.0, 7.0, 7.0), gb=(-3.0, 4.5, 5.5, 5.5), ring=(-1.2, -1.6, 3.2, 3.2),
                       disc=(12.4, 0.65, 0.35, 0.35), panel=(0, 6.95, DW, 0.55), bar=(0.9, 1.75, 1.0, 0.09)),
-    "closing":   dict(ga=(2.6, -2.0, 8.2, 8.2), gb=(-2.5, 4.5, 5.0, 5.0), ring=(3.67, 0.25, 6.0, 6.0),
-                      disc=(9.3, 1.0, 0.55, 0.55), panel=(0, 0, 0.16, DH), bar=(6.17, 4.4, 1.0, 0.09)),
+    "closing":   dict(ga=(2.17, -1.33, 9.0, 9.0), gb=(-2.5, 4.5, 5.0, 5.0), ring=(2.67, -0.83, 8.0, 8.0),
+                      disc=(11.3, 5.9, 0.5, 0.5), panel=(0, 0, 0.16, DH), bar=(6.17, 4.0, 1.0, 0.09)),
 }
 LAYOUTS = tuple(POSES)
+
+# Motifs: how the stage slots are drawn. Positions come from POSES; the motif
+# picks the shapes, so the same layout can read as orbs, Bauhaus geometry,
+# Swiss blocks or flowing ribbons.
+MOTIFS = ("orbit", "prism", "swiss", "flow")
 ACCENT_PANEL = ("compare", "title", "section", "stat", "timeline", "closing", "agenda",
                 "question", "quote", "process")
 
@@ -245,9 +250,10 @@ def fit(text, w, h, max_pt, min_pt=10, wf=0.64, lh=1.18):
 
 
 class Deck:
-    def __init__(self, spec, theme, motion="normal", aspect="16:9"):
+    def __init__(self, spec, theme, motion="normal", aspect="16:9", motif="orbit"):
         self.spec = spec
         self.t = theme
+        self.motif = motif
         self.m = MOTION[motion]
         self.SW, self.SH = ASPECTS[aspect]
         self.sx, self.sy = self.SW / DW, self.SH / DH
@@ -373,20 +379,18 @@ class Deck:
         """Persistent `!!` shapes. Their pose per layout is what Morph animates."""
         t, P = self.t, POSES[layout]
         k = self.layout_count.get(layout, 0)
-        spin = self.m["spin"] * idx  # keeps the dashed ring turning across slides
-        g = t["glow"]
-        glow(self.shape(slide, MSO_SHAPE.OVAL, "!!glow_a", *P["ga"], round_=True), t["accent"], g)
-        glow(self.shape(slide, MSO_SHAPE.OVAL, "!!glow_b", *P["gb"], round_=True), t["accent2"], g * 0.8)
+        spin = (self.m["spin"] * idx + 37 * k) % 360  # keeps stage shapes turning across slides
+        draw = getattr(self, "_motif_" + self.motif)
+        ring, disc = draw(slide, P, idx, spin)
         panel = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!panel", *P["panel"])
         solid(panel, t["accent"] if layout in ACCENT_PANEL else t["surface"],
               0.6 if layout in ("cards", "gallery") else 0.9)
         no_line(panel)
-        ring = self.shape(slide, MSO_SHAPE.OVAL, "!!ring", *P["ring"], rot=(spin + 37 * k) % 360, round_=True)
-        _set_fill_xml(ring, "<a:noFill/>")
-        line(ring, t["accent2"], 1.5, dash=MSO_LINE.DASH, alpha=0.7)
-        disc = self.shape(slide, MSO_SHAPE.OVAL, "!!disc", *P["disc"], round_=True)
-        solid(disc, t["accent2"])
-        no_line(disc)
+        # glows/blocks must sit behind the panel, ring and disc above it
+        tree = slide.shapes._spTree
+        for sh in (ring, disc):
+            tree.remove(sh._element)
+            tree.append(sh._element)
         bar = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!bar", *P["bar"])
         solid(bar, t["accent"])
         no_line(bar)
@@ -396,6 +400,82 @@ class Deck:
         no_line(prog)
         self.layout_count[layout] = k + 1
         return {"disc": disc, "ring": ring, "bar": bar, "pose": P}
+
+    @staticmethod
+    def _shrink(box, f):
+        """Scale a pose box around its centre (rotated squares need room)."""
+        x, y, w, h = box
+        return (x + w * (1 - f) / 2, y + h * (1 - f) / 2, w * f, h * f)
+
+    def _motif_orbit(self, slide, P, idx, spin):
+        t, g = self.t, self.t["glow"]
+        glow(self.shape(slide, MSO_SHAPE.OVAL, "!!glow_a", *P["ga"], round_=True), t["accent"], g)
+        glow(self.shape(slide, MSO_SHAPE.OVAL, "!!glow_b", *P["gb"], round_=True), t["accent2"], g * 0.8)
+        ring = self.shape(slide, MSO_SHAPE.OVAL, "!!ring", *P["ring"], rot=spin, round_=True)
+        _set_fill_xml(ring, "<a:noFill/>")
+        line(ring, t["accent2"], 1.5, dash=MSO_LINE.DASH, alpha=0.7)
+        disc = self.shape(slide, MSO_SHAPE.OVAL, "!!disc", *P["disc"], round_=True)
+        solid(disc, t["accent2"])
+        no_line(disc)
+        return ring, disc
+
+    def _motif_prism(self, slide, P, idx, spin):
+        """Bauhaus geometry: tilted squares and triangles that turn as they glide."""
+        t, g = self.t, self.t["glow"]
+        a = self.shape(slide, MSO_SHAPE.ROUNDED_RECTANGLE, "!!glow_a", *self._shrink(P["ga"], 0.72),
+                       rot=(18 + spin * 0.4) % 360, round_=True)
+        a.adjustments[0] = 0.06
+        solid(a, t["accent"], 0.22 * g / 0.5)
+        no_line(a)
+        b = self.shape(slide, MSO_SHAPE.ISOSCELES_TRIANGLE, "!!glow_b", *self._shrink(P["gb"], 0.8),
+                       rot=(360 - spin * 0.5) % 360, round_=True)
+        solid(b, t["accent2"], 0.2 * g / 0.5)
+        no_line(b)
+        ring = self.shape(slide, MSO_SHAPE.DIAMOND, "!!ring", *self._shrink(P["ring"], 0.85), rot=spin, round_=True)
+        _set_fill_xml(ring, "<a:noFill/>")
+        line(ring, t["accent2"], 2.0, alpha=0.75)
+        disc = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!disc", *self._shrink(P["disc"], 0.8),
+                          rot=(45 + spin) % 360, round_=True)
+        solid(disc, t["accent2"])
+        no_line(disc)
+        return ring, disc
+
+    def _motif_swiss(self, slide, P, idx, spin):
+        """Swiss/editorial: flat colour blocks and hairline frames, no rotation."""
+        t = self.t
+        a = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!glow_a", *self._shrink(P["ga"], 0.7))
+        solid(a, t["accent"], 0.14 if t["dark"] else 0.12)
+        no_line(a)
+        b = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!glow_b", *self._shrink(P["gb"], 0.75))
+        solid(b, t["accent2"], 0.16 if t["dark"] else 0.18)
+        no_line(b)
+        ring = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!ring", *self._shrink(P["ring"], 0.9), round_=True)
+        _set_fill_xml(ring, "<a:noFill/>")
+        line(ring, t["text"], 0.75, alpha=0.45)
+        disc = self.shape(slide, MSO_SHAPE.RECTANGLE, "!!disc", *P["disc"], round_=True)
+        solid(disc, t["accent"])
+        no_line(disc)
+        return ring, disc
+
+    def _motif_flow(self, slide, P, idx, spin):
+        """Flowing ribbons: stretched glows, an open arc and a pill."""
+        t, g = self.t, self.t["glow"]
+        tilt = (-22 + (idx % 4) * 11) % 360
+        for name, box, col, al in (("!!glow_a", P["ga"], t["accent"], g), ("!!glow_b", P["gb"], t["accent2"], g * 0.8)):
+            x, y, w, h = box
+            sh = self.shape(slide, MSO_SHAPE.OVAL, name, x - w * 0.3, y + h * 0.22, w * 1.6, h * 0.56,
+                            rot=tilt, round_=True)
+            glow(sh, col, al)
+        ring = self.shape(slide, MSO_SHAPE.ARC, "!!ring", *P["ring"], rot=spin, round_=True)
+        ring.adjustments[0], ring.adjustments[1] = -160, 60
+        _set_fill_xml(ring, "<a:noFill/>")
+        line(ring, t["accent2"], 3.0, alpha=0.8)
+        x, y, w, h = P["disc"]
+        disc = self.shape(slide, MSO_SHAPE.ROUNDED_RECTANGLE, "!!disc", x - w * 0.6, y, w * 2.2, h, round_=True)
+        disc.adjustments[0] = 0.5
+        solid(disc, t["accent2"])
+        no_line(disc)
+        return ring, disc
 
     # -- build --------------------------------------------------------------
 
@@ -439,7 +519,8 @@ class Deck:
                 anim.add("fade", back, 1500, 600)
             # ambient loops on the stage: gentle float + a slow sway
             anim.add("float", stage["disc"], 200, 2600)
-            anim.add("sway", stage["ring"], 0, 6000)
+            if self.motif != "swiss":  # Swiss frames stay square-on
+                anim.add("sway", stage["ring"], 0, 6000)
             notes = "\n\n".join(filter(None, [s.get("notes")] + self.credits))
             if notes:
                 slide.notes_slide.notes_text_frame.text = notes
@@ -536,15 +617,15 @@ class Deck:
 
     def L_question(self, slide, s, a, st):
         t = self.t
-        k = self.text(slide, "kicker", 1.5, 1.2, 10.33, 0.4, [self.kicker(s.get("kicker", "Think about it"))],
+        k = self.text(slide, "kicker", 3.17, 1.0, 7.0, 0.4, [self.kicker(s.get("kicker", "Think about it"))],
                       align=PP_ALIGN.CENTER)
         a.add("fade", k, 0, 600)
-        q = self.text(slide, "question", 1.5, 1.75, 10.33, 3.3,
-                      [self.head(s["text"], 10.3, 3.3, 54, 22, lh=1.08)],
+        q = self.text(slide, "question", 3.17, 1.45, 7.0, 2.9,
+                      [self.head(s["text"], 7.0, 2.9, 50, 22, lh=1.08)],
                       align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
         a.add("rise", q, 250, 900, by_word=True)
         if s.get("subtitle"):
-            sub = self.text(slide, "subtitle", 2.5, 5.55, 8.33, 1.0, [self.body(s["subtitle"], 8.3, 1.0, 18)],
+            sub = self.text(slide, "subtitle", 3.42, 4.8, 6.5, 1.0, [self.body(s["subtitle"], 6.5, 1.0, 17)],
                             align=PP_ALIGN.CENTER)
             a.add("fade", sub, 1500, 700)
 
@@ -968,11 +1049,15 @@ class Deck:
 
     def L_closing(self, slide, s, a, st):
         t = self.t
-        h = self.text(slide, "title", 1.4, 1.6, 10.53, 2.6, [self.head(s["title"], 10.5, 2.6, 60)],
+        # text stays inside the ring (centre 6.67, 3.17; inner width ~7")
+        h = self.text(slide, "title", 3.17, 1.35, 7.0, 2.45, [self.head(s["title"], 7.0, 2.45, 52)],
                       align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.BOTTOM)
         a.add("letters", h, 100, 450)
         if s.get("subtitle"):
-            sub = self.text(slide, "subtitle", 2.2, 4.75, 8.93, 1.3, [self.body(s["subtitle"], 8.9, 1.3, 20)],
+            # wider glyph estimate: closing subtitles are often URLs, which wrap badly
+            size = self.fit(s["subtitle"], 6.5, 1.0, 18, 10, wf=0.68, lh=1.45)
+            sub = self.text(slide, "subtitle", 3.42, 4.3, 6.5, 1.0,
+                            [{"text": s["subtitle"], "size": size, "color": self.t["muted"], "lh": 1.25}],
                             align=PP_ALIGN.CENTER)
             a.add("rise", sub, 900, 700)
 
@@ -1176,12 +1261,13 @@ def main():
     ap.add_argument("--theme", help="override the theme named in the spec")
     ap.add_argument("--motion", choices=list(MOTION), help="override options.motion")
     ap.add_argument("--aspect", choices=list(ASPECTS), help="override options.aspect")
+    ap.add_argument("--motif", choices=MOTIFS, help="override options.motif / the theme's motif")
     ap.add_argument("--list-themes", action="store_true")
     args = ap.parse_args()
     themes = load_themes()
     if args.list_themes:
         for k, v in themes.items():
-            print(f"{k:10s} {'dark ' if v['dark'] else 'light'}  {v['mood']}")
+            print(f"{k:10s} {'dark ' if v['dark'] else 'light'}  motif {v.get('motif', 'orbit'):6s}  {v['mood']}")
         return
     if not (args.spec and args.out):
         ap.error("spec and out are required")
@@ -1199,13 +1285,16 @@ def main():
     if aspect not in ASPECTS:
         sys.exit(f"unsupported aspect '{aspect}'. Use one of: {', '.join(ASPECTS)}")
     theme = dict(themes[name], **spec.get("theme_overrides", {}))
-    prs = Deck(spec, theme, motion, aspect).build()
+    motif = args.motif or opts.get("motif") or theme.get("motif", "orbit")
+    if motif not in MOTIFS:
+        sys.exit(f"unknown motif '{motif}'. Use one of: {', '.join(MOTIFS)}")
+    prs = Deck(spec, theme, motion, aspect, motif).build()
     prs.core_properties.title = spec.get("title", "")
     prs.save(args.out)
     want = opts.get("slides")
     got = len(spec["slides"])
     note = f" (options.slides asked for {want})" if want and want != got else ""
-    print(f"wrote {args.out}: {got} slides{note}, theme '{name}', motion '{motion}', aspect {aspect}")
+    print(f"wrote {args.out}: {got} slides{note}, theme '{name}', motif '{motif}', motion '{motion}', aspect {aspect}")
     density = opts.get("density", "balanced")
     if density in DENSITY:
         print(density_report(spec, density))
