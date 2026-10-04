@@ -187,6 +187,22 @@ def stock(query, cache_dir, shape="wide"):
     raise RuntimeError(f"no usable stock image found for '{query}'")
 
 
+def web_copy(path, max_px=1920, max_bytes=900_000):
+    """Return a slide-sized JPEG of `path` (cached next to it) so decks stay small."""
+    if os.path.getsize(path) <= max_bytes:
+        return path
+    from PIL import Image
+    out = os.path.splitext(path)[0] + f"-{max_px}.jpg"
+    if os.path.exists(out):
+        return out
+    im = Image.open(path)
+    im.thumbnail((max_px, max_px))
+    if im.mode not in ("RGB", "L"):
+        im = im.convert("RGB")
+    im.save(out, "JPEG", quality=85, optimize=True, progressive=True)
+    return out
+
+
 def resolve(ref, spec_dir, shape="wide"):
     """Turn a spec image reference into (local_path, credit_or_None)."""
     cache = os.path.join(spec_dir, "images")

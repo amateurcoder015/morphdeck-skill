@@ -1,125 +1,351 @@
-# morphdeck: cinematic PowerPoint decks from a topic
+<div align="center">
 
-A [Claude Code](https://claude.com/claude-code) skill. Give it a topic title, and optionally a short brief. It writes the storyline, picks a theme that fits the topic, and builds a **native `.pptx`** that moves like a film:
+<img src="docs/hero.jpg" alt="morphdeck title slide" width="100%">
 
-- **Morph transitions** on every slide. A shared stage of glows, a dashed ring, panels and accent bars glides, resizes and rotates between slides, so the deck plays as one continuous camera move.
-- **Staggered entrance animations**: titles build letter by letter, statements word by word, and points, cards and timeline steps rise in one after another. They all start automatically, with no extra clicks.
-- **Ambient motion loops**: a floating accent disc, a swaying ring, and a slow Ken Burns push-in on photos.
-- **Native animated charts**: column, bar, line, area, stacked, donut and pie charts in theme colours. The data stays editable in PowerPoint.
-- **Images**: your own files, URLs, `stock:<search>` photos fetched automatically (Openverse, or Pexels with a free key), or `ai:<prompt>` images generated free with Cloudflare Workers AI (FLUX.1 schnell). Credits go into the speaker notes.
-- **Clickable agenda**: agenda items jump to their sections, and each section links back, with Morph on every jump.
-- **6 themes × 4 motifs**: colour themes (`midnight`, `emerald`, `ember`, `aurum`, `paper`, `lagoon`) combine with shape styles for the morphing stage: `orbit` (glowing orbs and rings), `prism` (Bauhaus squares and triangles), `swiss` (flat editorial blocks) and `flow` (ribbons and arcs).
-- **19 layouts**: title, agenda, section, statement, question, quote, bullets, detail, stat, chart, cards, people, timeline, process, compare, split, image (full-bleed), gallery and closing.
+# morphdeck
 
-## Customise it
+### Type a topic. Get a PowerPoint that moves like a film.
 
-| option | values | default |
+A [Claude Code](https://claude.com/claude-code) skill that turns a title, or a title plus a short brief, into a **native `.pptx`** with Morph transitions, auto-playing animations, animated charts and free AI images. Not a template: a story, designed and animated for your topic.
+
+![Claude Code skill](https://img.shields.io/badge/Claude_Code-skill-7C5CFF?style=for-the-badge)
+![PowerPoint](https://img.shields.io/badge/PowerPoint-Morph-D24726?style=for-the-badge&logo=microsoftpowerpoint&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.9+-22D3EE?style=for-the-badge&logo=python&logoColor=white)
+![Layouts](https://img.shields.io/badge/layouts-19-B6F36B?style=for-the-badge)
+
+[**▶ Download the showcase deck**](decks/morphdeck-showcase.pptx?raw=1) · [Quick start](#-quick-start) · [Options](#%EF%B8%8F-options) · [Layouts](#-layouts) · [AI images](#-images-your-own-stock-or-free-ai) · [How it works](#-how-it-works)
+
+</div>
+
+---
+
+## ✨ What you get
+
+| | |
+|---|---|
+| 🎞 **Morph on every slide** | A shared "stage" of shapes glides, resizes and turns between slides, so the deck plays as one continuous camera move. |
+| ⚡ **Animations that run themselves** | Titles build letter by letter, statements word by word, and points, cards and charts rise in turn. No extra clicks. |
+| 🌊 **Ambient motion** | Floating accents, a swaying ring and slow Ken Burns zooms on photos keep every slide alive. |
+| 📊 **Animated native charts** | Column, bar, line, area, stacked, donut and pie charts in theme colours. The data stays editable in PowerPoint. |
+| 🖼 **Images on demand** | Your own files, links, automatic stock photos, or **free AI images** from Cloudflare FLUX, with credits added to the speaker notes. |
+| 🔗 **Clickable agenda** | Agenda items jump to their sections, and each section jumps back, with Morph playing on every jump. |
+| 🎨 **6 themes × 4 motifs** | Colour themes matched to the topic, combined with four shape languages for the moving stage. |
+| 🎛 **Your knobs** | Slide count, motion intensity, text-heavy vs image-heavy, tone, aspect ratio, brand colours. |
+| 🗣 **Speaker notes** | Talking points written in your chosen tone, ready in the presenter view. |
+| ✏️ **Fully editable** | Real PowerPoint objects. Retime anything in the Animation Pane, rename layers in the Selection Pane. |
+
+---
+
+## 🎬 See it
+
+**The showcase deck**: 23 slides that use all 19 layouts, made by morphdeck about morphdeck. [Download it](decks/morphdeck-showcase.pptx?raw=1) and press **⌘⇧↩** (Mac) or **F5** (Windows).
+
+<img src="docs/showcase-slides.jpg" alt="All 23 slides of the showcase deck" width="100%">
+
+**Four motifs, one deck.** The same content in each shape language:
+
+<img src="docs/motifs.jpg" alt="The same title slide in orbit, prism, swiss and flow motifs" width="100%">
+
+**Charts, photos and diagrams** from the electric-vehicles example:
+
+<img src="docs/charts-and-images.jpg" alt="Charts, a full-bleed photo, a flywheel diagram and a photo gallery" width="100%">
+
+### Example decks in this repo
+
+| Deck | Theme · motif | Shows off |
 |---|---|---|
-| `slides` | any number | 8–12, depending on the topic |
-| `motion` | `calm`, `normal`, `dramatic` | `normal` |
-| `theme` | `midnight`, `emerald`, `ember`, `aurum`, `paper`, `lagoon` | picked from the topic |
-| `motif` | `orbit`, `prism`, `swiss`, `flow` | the theme's motif |
-| `aspect` | `16:9`, `16:10`, `4:3` | `16:9` |
-| `tone` | `exec`, `academic`, `kids`, `casual`, `persuasive`, or anything else | inferred from the topic |
-| `density` | `text` (content-heavy), `balanced`, `visual` (image-heavy) | `balanced` |
-| `images` | `stock`, `ai`, `mixed`, `none`, or your own files and links | `stock` when photos help the story |
-| `agenda` | `yes`, `no` (a clickable agenda) | `yes` for longer decks |
-| `brand` | hex colours | theme colours |
+| [morphdeck-showcase.pptx](decks/morphdeck-showcase.pptx?raw=1) | midnight · orbit, dramatic | every layout, AI images, charts, clickable agenda |
+| [electric-vehicles.pptx](decks/electric-vehicles.pptx?raw=1) | emerald · flow, dramatic | real data charts, stock photos, process diagram |
+| [black-holes-orbit.pptx](decks/black-holes-orbit.pptx?raw=1) | midnight · orbit | the classic look |
+| [black-holes-prism.pptx](decks/black-holes-prism.pptx?raw=1) | ember · prism | Bauhaus geometry |
+| [black-holes-swiss.pptx](decks/black-holes-swiss.pptx?raw=1) | paper · swiss | light editorial style |
+| [black-holes-flow.pptx](decks/black-holes-flow.pptx?raw=1) | lagoon · flow, calm, 4:3 | calm motion, 4:3 format |
 
-`motion` changes Morph speed, the delay between items, how far things travel, zoom depth, letter-by-letter titles (off in `calm`), and how much the ring spins, sways and floats.
+> Static previews can't show the motion. Open a deck in PowerPoint and play it.
 
-Everything stays editable in PowerPoint's Animation Pane and Selection Pane.
+---
 
-## ⚠️ Install the Unbounded font first
-
-The decks use **[Unbounded](https://fonts.google.com/specimen/Unbounded)**, a free font from Google Fonts. Install it on **every machine that will open or present the deck**. On a Mac, double-click the `.ttf` file and choose *Install*. On Windows, right-click it and choose *Install for all users*. Then restart PowerPoint.
-
-Without the font, PowerPoint substitutes another typeface. The slides still work, but the type looks generic and the spacing changes.
-
-## Requirements
-
-- **PowerPoint 2019, 2021 or Microsoft 365** (Mac or Windows) to present the deck. Morph is a PowerPoint feature. Keynote, Google Slides and older PowerPoint versions fall back to a plain fade.
-- Python 3.9 or newer with `python-pptx`:
-  ```bash
-  python3 -m pip install --user python-pptx
-  ```
-- Optional, for previews on a Mac with PowerPoint installed: `python3 -m pip install --user pymupdf pillow`
-- Optional, for Pexels stock photos instead of Openverse: a free API key from [pexels.com/api](https://www.pexels.com/api/), set as `export PEXELS_API_KEY=...`
-- Optional, for AI images: a free Cloudflare account (see below).
-
-## Free AI images with Cloudflare
-
-The `ai:` images use Cloudflare Workers AI's **FLUX.1 schnell** model. The free plan includes 10,000 neurons a day, and one image costs about 58, so you get **around 170 free images a day**. The allowance resets at 00:00 UTC.
-
-1. Sign up at [dash.cloudflare.com](https://dash.cloudflare.com).
-2. **Account ID**: on the dashboard, open *Workers & Pages* and copy the Account ID from the right sidebar.
-3. **API token**: go to *My Profile → API Tokens → Create Token*, use the **Workers AI** template, and create the token.
-4. Save both in `~/.config/morphdeck/.env`:
-   ```
-   CF_ACCOUNT_ID=your_account_id
-   CF_API_TOKEN=your_token
-   ```
-5. Test it: `python3 morphdeck/scripts/images.py "ai:a lighthouse at dusk, cinematic photo" /tmp/test`
-
-Without keys, `ai:` images fall back to a stock photo search, so decks still build. FLUX makes square 1024×1024 images, which the deck crops to each frame.
-
-## Install the skill
+## 🚀 Quick start
 
 ```bash
 git clone https://github.com/amateurcoder015/morphdeck-skill.git
-mkdir -p ~/.claude/skills
-cp -r morphdeck-skill/morphdeck ~/.claude/skills/morphdeck
+cd morphdeck-skill
+./install.sh
 ```
 
-Restart Claude Code.
+The installer:
+1. copies the skill to `~/.claude/skills/morphdeck` (use `./install.sh --link` to symlink instead),
+2. installs the Python packages (`python-pptx`, `pillow`, `certifi`, plus `pymupdf` on macOS for previews),
+3. **installs the bundled Unbounded font** for your user,
+4. creates `~/.config/morphdeck/.env` for optional API keys.
 
-## Use it
+Restart Claude Code, then:
 
 ```
 /morphdeck Black holes
 ```
 
-```
-/morphdeck The 2008 financial crisis — for a college econ class, 10 slides,
-focus on causes, the Lehman collapse, and what changed after.
+<details>
+<summary><b>Windows or manual install</b></summary>
+
+```powershell
+git clone https://github.com/amateurcoder015/morphdeck-skill.git
+xcopy /E /I morphdeck-skill\morphdeck %USERPROFILE%\.claude\skills\morphdeck
+python -m pip install --user python-pptx pillow certifi
+python %USERPROFILE%\.claude\skills\morphdeck\scripts\fonts.py
 ```
 
+`fonts.py` installs Unbounded for the current user on macOS, Windows and Linux. The deck builder also runs it automatically before each build, so the font is in place whenever you generate a deck.
+</details>
+
+---
+
+## 🧑‍💻 How to use it
+
+Ask in plain words, or use the slash command with optional `key=value` options:
+
 ```
-/morphdeck Our Q3 results slides=8 motion=calm tone=exec theme=paper aspect=4:3 brand=#0052FF
+/morphdeck Photosynthesis
+```
+```
+/morphdeck The 2008 financial crisis for a college econ class: causes, the Lehman collapse, what changed after. 10 slides.
+```
+```
+/morphdeck Our Q3 results slides=8 motion=calm tone=exec theme=paper motif=swiss brand=#0052FF
+```
+```
+/morphdeck Cities of 2050 density=visual images=ai motion=dramatic
 ```
 
-Or ask in plain words, for example: "make me an animated ppt about photosynthesis". Claude writes a JSON spec, builds `<topic>.pptx` in your current folder, checks the layout, and tells you where the file is. Open it in PowerPoint and start the slideshow (**⌘⇧↩** on Mac, **F5** on Windows) to see the motion.
+Claude then:
 
-## Run the generator directly
+1. **Writes the story**: hook, sections, a turning point and a closing line, plus speaker notes.
+2. **Designs it**: picks a theme, a motif and a layout for each slide, never repeating a layout back to back.
+3. **Finds images**: stock or AI, depending on your choice.
+4. **Builds** the `.pptx` with Morph, animations and charts.
+5. **Checks it**: on a Mac with PowerPoint, it renders every slide, looks for overflow or collisions, and fixes them.
+6. **Hands it over** with a list of the choices it made.
+
+---
+
+## 🎛️ Options
+
+| Option | Values | Default |
+|---|---|---|
+| `slides` | any number | 8–12, depending on the topic |
+| `theme` | `midnight` `emerald` `ember` `aurum` `paper` `lagoon` | matched to the topic |
+| `motif` | `orbit` `prism` `swiss` `flow` | the theme's motif |
+| `motion` | `calm` `normal` `dramatic` | `normal` |
+| `density` | `text` (content-heavy) · `balanced` · `visual` (image-heavy) | `balanced` |
+| `images` | `stock` `ai` `mixed` `none`, or your own files and links | `stock` when photos help |
+| `tone` | `exec` `academic` `kids` `casual` `persuasive` … | inferred |
+| `aspect` | `16:9` `16:10` `4:3` | `16:9` |
+| `agenda` | `yes` `no` (a clickable agenda) | `yes` for longer decks |
+| `brand` | hex colours | theme colours |
+
+<details>
+<summary><b>What <code>motion</code> changes</b></summary>
+
+| | calm | normal | dramatic |
+|---|---|---|---|
+| Morph speed | slower | standard | faster |
+| Stagger between items | wide | standard | tight |
+| Rise distance / zoom depth | small | medium | large |
+| Letter-by-letter titles | off | on | on |
+| Stage spin per slide | 35° | 70° | 140° |
+| Ken Burns push-in | 4% | 8% | 15% |
+</details>
+
+<details>
+<summary><b>What <code>density</code> changes</b></summary>
+
+| | text | balanced | visual |
+|---|---|---|---|
+| Slides with images | ≤ 25% | 15–55% | ≥ 50% |
+| Words per slide | ≤ 70 | ≤ 45 | ≤ 25 |
+| Favourite layouts | detail, bullets, cards, compare, chart | a mix | image, gallery, split, quote, stat |
+
+Each build prints the deck's actual image share and words per slide, and warns if they drift from the requested density.
+</details>
+
+---
+
+## 🎨 Themes and motifs
+
+**Themes** set the colours:
+
+| Theme | Look | Good for |
+|---|---|---|
+| `midnight` | navy, violet, cyan | tech, AI, space, the future |
+| `emerald` | deep green, lime | finance, sustainability, nature |
+| `ember` | warm black, orange, amber | history, energy, sport, culture |
+| `aurum` | black and gold | luxury, leadership, law |
+| `paper` | warm off-white, red, yellow | business, education, research |
+| `lagoon` | pale teal, coral | health, science, wellbeing |
+
+**Motifs** set the shapes that morph across the deck. Any theme works with any motif:
+
+| Motif | Shapes | Feels |
+|---|---|---|
+| `orbit` | glowing orbs, a dashed ring, a dot | cosmic, techy |
+| `prism` | tilted squares, triangles, a turning diamond | bold, Bauhaus |
+| `swiss` | flat colour blocks, hairline frames | editorial, corporate |
+| `flow` | ribbon glows, an open arc, a pill | organic, calm |
+
+---
+
+## 🧩 Layouts
+
+| Story | Data | Visual | Structure |
+|---|---|---|---|
+| `title` | `stat` | `image` (full-bleed) | `agenda` (clickable) |
+| `statement` | `chart` | `gallery` | `section` |
+| `question` | `compare` | `split` (photo or aside) | `timeline` |
+| `quote` (with photo) | `cards` | `people` (photos or initials) | `process` (cycle) |
+| `closing` | `detail` (content-heavy) | `bullets` (with photo) | |
+
+The fields for every layout are in [`morphdeck/references/spec.md`](morphdeck/references/spec.md).
+
+---
+
+## 🖼 Images: your own, stock or free AI
+
+Any image field accepts:
+
+| Value | Source |
+|---|---|
+| `"photos/team.jpg"` | a local file |
+| `"https://…/pic.jpg"` | a link, downloaded once |
+| `"stock:wind turbines at sunset"` | stock photo search via [Openverse](https://openverse.org) (free, no key), or [Pexels](https://www.pexels.com/api/) if `PEXELS_API_KEY` is set |
+| `"ai:glowing city skyline at dusk, cinematic"` | **AI-generated** with Cloudflare Workers AI · FLUX.1 schnell |
+
+Credits for every image go into that slide's speaker notes. Downloads are cached and shrunk to slide size, so decks stay small.
+
+### Free AI images with Cloudflare
+
+Cloudflare's free plan includes **10,000 neurons a day**, and one FLUX.1 schnell image costs about 58, so you get **around 170 free images a day**. The allowance resets at 00:00 UTC.
+
+1. Create a free account at [dash.cloudflare.com](https://dash.cloudflare.com).
+2. **Account ID**: go to *Workers & Pages* and copy it from the right sidebar.
+3. **API token**: go to *My Profile → API Tokens → Create Token* and use the **Workers AI** template.
+4. Add both to `~/.config/morphdeck/.env`:
+   ```
+   CF_ACCOUNT_ID=your_account_id
+   CF_API_TOKEN=your_token
+   ```
+5. Test it:
+   ```bash
+   python3 morphdeck/scripts/images.py "ai:a lighthouse at dusk, cinematic photo" /tmp/test
+   ```
+
+No keys? `ai:` images fall back to a stock search, so decks always build.
+
+---
+
+## 🔍 How it works
+
+```mermaid
+flowchart LR
+    A["Topic + brief<br/>+ options"] --> B["Claude writes<br/>storyline & notes"]
+    B --> C["JSON spec<br/>theme · motif · layouts"]
+    C --> D["build_deck.py"]
+    E["images.py<br/>local · stock · AI"] --> D
+    D --> F[".pptx<br/>Morph + animations + charts"]
+    F --> G["preview.py<br/>PowerPoint renders slides"]
+    G -->|"fix overflow"| C
+```
+
+- **The stage.** Every slide carries the same shapes (`!!glow_a`, `!!glow_b`, `!!panel`, `!!ring`, `!!disc`, `!!bar`, `!!progress`). PowerPoint's **Morph** matches shapes by their `!!` names, and each layout gives them a different pose, so they glide between slides.
+- **Content.** Titles, points, cards and charts are new on each slide. Morph fades them, and then their entrance animations play automatically ("With Previous" plus delays), so they stay editable in the Animation Pane.
+- **Motifs** change which shapes fill the stage. Themes change their colours. Motion profiles change the timing.
+- **Text fitting** sizes every text box for Unbounded's wide letters and never splits a word.
+
+### Run the generator directly
 
 ```bash
-python3 morphdeck/scripts/build_deck.py morphdeck/examples/black-holes.json black-holes.pptx
-python3 morphdeck/scripts/build_deck.py morphdeck/examples/black-holes.json black-holes.pptx --theme ember --motion dramatic
-python3 morphdeck/scripts/build_deck.py morphdeck/examples/electric-vehicles.json ev.pptx   # charts + stock photos
-python3 morphdeck/scripts/images.py "wind turbines at sunset" /tmp/img                      # test a stock search
-python3 morphdeck/scripts/images.py "ai:wind turbines at sunset, cinematic" /tmp/img       # test AI generation
+python3 morphdeck/scripts/build_deck.py morphdeck/examples/showcase.json out.pptx
+python3 morphdeck/scripts/build_deck.py spec.json out.pptx --theme ember --motif prism --motion dramatic --aspect 4:3
 python3 morphdeck/scripts/build_deck.py --list-themes
+python3 morphdeck/scripts/preview.py out.pptx previews/      # macOS + PowerPoint: PNGs + contact sheet
 ```
 
-The spec format for every layout is in [`morphdeck/references/spec.md`](morphdeck/references/spec.md).
+---
 
-## Layout
+## 📤 Sharing your deck
+
+- **Present** in **PowerPoint 2019, 2021 or Microsoft 365** (Mac or Windows). Keynote, Google Slides and older versions replace Morph with a plain fade.
+- **Fonts.** The decks use [Unbounded](https://fonts.google.com/specimen/Unbounded), which is bundled in [`morphdeck/fonts/`](morphdeck/fonts/) and installed automatically on your machine. A `.pptx` can't install fonts on someone else's computer, so before you send a deck, either:
+  - **embed the font** in PowerPoint: *File → Options → Save → Embed fonts in the file* on Windows, or *PowerPoint → Preferences → Save → Embed fonts in the file* on a Mac, then save; or
+  - send the `Unbounded[wght].ttf` file along with the deck, or export a PDF.
+- **Image credits** are in the speaker notes. Keep them when you share a deck publicly.
+
+---
+
+## 🧰 Troubleshooting
+
+<details>
+<summary><b>Text looks different or overflows</b></summary>
+
+Unbounded isn't installed on that machine. Run `python3 morphdeck/scripts/fonts.py`, then restart PowerPoint.
+</details>
+
+<details>
+<summary><b>Slides just fade instead of morphing</b></summary>
+
+Morph needs PowerPoint 2019 or newer. Check *Transitions → Morph* on any slide after the first.
+</details>
+
+<details>
+<summary><b>Stock image searches are slow or fail</b></summary>
+
+Openverse can take 30–120 s for a new search. Results are cached in `images/` next to the spec. Set a free `PEXELS_API_KEY` for faster, higher-quality photos.
+</details>
+
+<details>
+<summary><b><code>CERTIFICATE_VERIFY_FAILED</code> on macOS</b></summary>
+
+Some Python builds ship without root certificates. morphdeck falls back to `curl` automatically. To fix Python itself, run `/Applications/Python 3.x/Install Certificates.command`.
+</details>
+
+<details>
+<summary><b>Previews show the wrong deck</b></summary>
+
+Close the open presentations in PowerPoint. `preview.py` uses a unique file each run, but PowerPoint must be able to open a new window.
+</details>
+
+---
+
+## 📁 Repository layout
 
 ```
-morphdeck/
-├── SKILL.md               instructions Claude follows
-├── references/spec.md     JSON spec + layout reference
-├── examples/              black-holes.json, electric-vehicles.json
-└── scripts/
-    ├── build_deck.py      spec → .pptx (Morph, animation XML, charts)
-    ├── images.py          local / URL / stock / Cloudflare-AI image resolver with credits
-    ├── themes.json        the 6 themes
-    └── preview.py         .pptx → PNG contact sheet via PowerPoint (macOS)
+morphdeck-skill/
+├── install.sh                 one-step installer (skill + packages + font)
+├── decks/                     ready-made example decks (.pptx)
+├── docs/                      README images
+└── morphdeck/                 ← the skill (copied to ~/.claude/skills)
+    ├── SKILL.md               instructions Claude follows
+    ├── references/spec.md     JSON spec and layout reference
+    ├── examples/              showcase, electric-vehicles, black-holes specs
+    ├── fonts/                 Unbounded (SIL Open Font License)
+    └── scripts/
+        ├── build_deck.py      spec → .pptx (stage, Morph, animations, charts)
+        ├── images.py          local / URL / stock / Cloudflare AI images
+        ├── fonts.py           installs the bundled font
+        ├── themes.json        colour themes and their default motifs
+        └── preview.py         .pptx → PNG previews via PowerPoint (macOS)
 ```
 
-## Limits
+---
 
-- Previews show each slide's final frame. To judge Morph and the animation timing, play the deck in PowerPoint.
-- Text is sized to fit using estimates. Very long text shrinks to small sizes, so keep slides short.
-- Stock photos come from Creative Commons and Pexels libraries. Quality varies, so check the preview and change the search words if a photo misses. The first search takes 30–120 s; results are cached in `images/` next to the spec.
-- Vertical 9:16 decks are not supported yet. The layouts are built for landscape.
+## 🙏 Credits
+
+- **[Unbounded](https://github.com/googlefonts/unbounded)** by The Unbounded Project Authors, under the [SIL Open Font License 1.1](morphdeck/fonts/OFL.txt).
+- Stock photos via **[Openverse](https://openverse.org)** and **[Pexels](https://www.pexels.com)**. AI images via **[Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)** · FLUX.1 schnell by Black Forest Labs.
+- Built on **[python-pptx](https://github.com/scanny/python-pptx)**.
+- The free-AI-images approach was inspired by [hassancs91/claude-image-generation](https://github.com/hassancs91/claude-image-generation).
+
+<div align="center">
+
+**Type a topic. Get a film.**
+
+</div>

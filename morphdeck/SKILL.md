@@ -169,5 +169,5 @@ Give the `.pptx` path and the options you chose (theme, motion, aspect, slide
 count, tone, density, image source). Tell the user:
 - Play it as a slideshow in **PowerPoint 2019+ / Microsoft 365**. Keynote and Google
   Slides replace Morph with a fade.
-- The **Unbounded** font must be installed (free on Google Fonts).
+- The **Unbounded** font ships in `fonts/` and the build installs it automatically for this user. Anyone else who opens the deck needs it installed too, or the font embedded (PowerPoint → Preferences → Save → Embed fonts).
 - Stock photo credits are in the speaker notes. Keep them if the deck is shared publicly.

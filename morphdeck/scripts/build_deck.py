@@ -33,6 +33,7 @@ from pptx.util import Emu, Pt
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import fonts  # noqa: E402
 import images  # noqa: E402
 
 # Layouts are designed on a 16:9 canvas of DW x DH inches; other aspect ratios
@@ -301,7 +302,7 @@ class Deck:
             print(f"warning: image '{ref}' skipped: {e}", file=sys.stderr)
             return None, None
         X, Y, W, H = self.R(x, y, w, h, round_)
-        pic = slide.shapes.add_picture(path, X, Y, W, H)
+        pic = slide.shapes.add_picture(images.web_copy(path), X, Y, W, H)
         pic.name = name
         cover_crop(pic, W / H)
         return pic, credit
@@ -1263,6 +1264,7 @@ def main():
     ap.add_argument("--aspect", choices=list(ASPECTS), help="override options.aspect")
     ap.add_argument("--motif", choices=MOTIFS, help="override options.motif / the theme's motif")
     ap.add_argument("--list-themes", action="store_true")
+    ap.add_argument("--no-font-install", action="store_true", help="don't install the bundled Unbounded font")
     args = ap.parse_args()
     themes = load_themes()
     if args.list_themes:
@@ -1271,6 +1273,10 @@ def main():
         return
     if not (args.spec and args.out):
         ap.error("spec and out are required")
+    if not args.no_font_install:
+        msg = fonts.install()
+        if msg:
+            print(msg)
     with open(args.spec) as f:
         spec = json.load(f)
     spec["_dir"] = os.path.dirname(os.path.abspath(args.spec))
