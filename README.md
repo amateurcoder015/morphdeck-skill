@@ -13,7 +13,7 @@ A [Claude Code](https://claude.com/claude-code) skill that turns a title, or a t
 ![Python](https://img.shields.io/badge/Python-3.9+-22D3EE?style=for-the-badge&logo=python&logoColor=white)
 ![Layouts](https://img.shields.io/badge/layouts-19-B6F36B?style=for-the-badge)
 
-[**▶ Download the showcase deck**](decks/morphdeck-showcase.pptx?raw=1) · [Quick start](#-quick-start) · [Options](#%EF%B8%8F-options) · [Layouts](#-layouts) · [AI images](#-images-your-own-stock-or-free-ai) · [How it works](#-how-it-works)
+[**▶ Watch the 22-second promo**](docs/promo.mp4) · [**Download the showcase deck**](decks/morphdeck-showcase.pptx?raw=1) · [Quick start](#-quick-start) · [Options](#%EF%B8%8F-options) · [Layouts](#-layouts) · [AI images](#-images-your-own-stock-or-free-ai) · [How it works](#-how-it-works)
 
 </div>
 
@@ -37,6 +37,10 @@ A [Claude Code](https://claude.com/claude-code) skill that turns a title, or a t
 ---
 
 ## 🎬 See it
+
+<a href="docs/promo.mp4"><img src="docs/promo-poster.jpg" alt="Watch the morphdeck promo video" width="100%"></a>
+
+<p align="center"><b><a href="docs/promo.mp4">▶ Play the promo video</a></b> (22 s, made with <a href="https://hyperframes.heygen.com">HyperFrames</a> from morphdeck's own slides)</p>
 
 **The showcase deck**: 23 slides that use all 19 layouts, made by morphdeck about morphdeck. [Download it](decks/morphdeck-showcase.pptx?raw=1) and press **⌘⇧↩** (Mac) or **F5** (Windows).
 

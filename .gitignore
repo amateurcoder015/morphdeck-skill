@@ -5,3 +5,4 @@ __pycache__/
 !decks/*.pptx
 images/
 .env
+brag-output*/
