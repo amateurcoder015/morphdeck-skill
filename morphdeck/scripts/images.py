@@ -5,14 +5,21 @@ An image field in a spec can be:
     "photos/team.jpg"           a local file (relative to the spec)
     "https://…/pic.jpg"         a URL, downloaded once
     "stock:black hole galaxy"   a stock-photo search
+    "ai:<prompt>"               an AI-generated image (Cloudflare Workers AI, FLUX.1 schnell)
 
 Stock search uses Pexels when PEXELS_API_KEY is set, otherwise Openverse (no key;
 Creative Commons images from Flickr, Wikimedia and others). Every download is
 cached in `<spec dir>/images/` and comes back with a credit line, which the deck
 puts in that slide's speaker notes.
 
+AI images need CF_ACCOUNT_ID and CF_API_TOKEN (environment, or a .env file in the
+spec's folder, the current folder or ~/.config/morphdeck/.env). Cloudflare's free
+allowance is 10,000 neurons a day, about 170 images. Without keys, "ai:" refs fall
+back to a stock search on the same words.
+
 CLI (handy for trying a query before putting it in a spec):
     python3 images.py "black hole galaxy" out_dir [--shape wide|square|tall]
+    python3 images.py "ai:glowing accretion disk around a black hole, cinematic" out_dir
 """
 import hashlib
 import io
@@ -55,6 +62,63 @@ def _get(url, headers=None, timeout=25):
         for k, v in headers.items():
             cmd += ["-H", f"{k}: {v}"]
         return subprocess.run(cmd + [url], check=True, capture_output=True).stdout
+
+
+def _post_json(url, payload, headers, timeout=90):
+    body = json.dumps(payload).encode()
+    headers = {"User-Agent": UA, "Content-Type": "application/json", **headers}
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=_ssl_context()) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        return json.loads(e.read() or b"{}")
+    except urllib.error.URLError as e:
+        if "CERTIFICATE_VERIFY_FAILED" not in str(e) or not shutil.which("curl"):
+            raise
+        cmd = ["curl", "-sL", "--max-time", str(timeout), "-X", "POST", "--data-binary", "@-"]
+        for k, v in headers.items():
+            cmd += ["-H", f"{k}: {v}"]
+        out = subprocess.run(cmd + [url], input=body, check=True, capture_output=True).stdout
+        return json.loads(out)
+
+
+def _load_env(*dirs):
+    """Read KEY=VALUE lines from the first .env files found (no python-dotenv needed)."""
+    for d in dirs:
+        path = os.path.join(d, ".env")
+        if not os.path.isfile(path):
+            continue
+        for ln in open(path):
+            ln = ln.strip()
+            if ln and not ln.startswith("#") and "=" in ln:
+                k, v = ln.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+CF_MODEL = "@cf/black-forest-labs/flux-1-schnell"
+_NOTED = set()
+
+
+def ai_image(prompt, cache_dir, steps=6):
+    """Generate with Cloudflare Workers AI. Returns (path, credit). Output is 1024x1024; the deck crops it."""
+    os.makedirs(cache_dir, exist_ok=True)
+    path = os.path.join(cache_dir, f"ai-{_slug(prompt)[:32]}-{hashlib.sha1(prompt.encode()).hexdigest()[:8]}.jpg")
+    credit = f"AI-generated image (Cloudflare Workers AI, FLUX.1 schnell). Prompt: {prompt}"
+    if os.path.exists(path):
+        return path, credit
+    acct, token = os.environ.get("CF_ACCOUNT_ID"), os.environ.get("CF_API_TOKEN")
+    if not (acct and token):
+        raise KeyError("CF_ACCOUNT_ID / CF_API_TOKEN not set")
+    data = _post_json(f"https://api.cloudflare.com/client/v4/accounts/{acct}/ai/run/{CF_MODEL}",
+                      {"prompt": prompt, "steps": steps}, {"Authorization": f"Bearer {token}"})
+    b64 = (data.get("result") or {}).get("image")
+    if not b64:
+        raise RuntimeError(f"Cloudflare error: {data.get('errors') or data}")
+    import base64
+    with open(path, "wb") as f:
+        f.write(base64.b64decode(b64))
+    return path, credit
 
 
 def _slug(text):
@@ -126,6 +190,18 @@ def stock(query, cache_dir, shape="wide"):
 def resolve(ref, spec_dir, shape="wide"):
     """Turn a spec image reference into (local_path, credit_or_None)."""
     cache = os.path.join(spec_dir, "images")
+    if ref.startswith("ai:"):
+        prompt = ref[3:].strip()
+        _load_env(spec_dir, os.getcwd(), os.path.expanduser("~/.config/morphdeck"))
+        try:
+            return ai_image(prompt, cache)
+        except KeyError:
+            # no Cloudflare keys: fall back to a stock search on the prompt's leading words
+            words = re.sub(r"[^\w\s]", " ", prompt).split()[:6]
+            if prompt not in _NOTED:
+                _NOTED.add(prompt)
+                print(f"note: no Cloudflare keys, using stock search for '{' '.join(words)}'", file=sys.stderr)
+            return stock(" ".join(words), cache, shape)
     if ref.startswith("stock:"):
         return stock(ref[6:].strip(), cache, shape)
     if ref.startswith(("http://", "https://")):
@@ -158,6 +234,13 @@ def prefetch(jobs, spec_dir, workers=6):
             list(ex.map(one, jobs))
 
 
+def _resolve_into(ref, out_dir, shape):
+    if ref.startswith("ai:"):
+        _load_env(os.getcwd(), os.path.expanduser("~/.config/morphdeck"))
+        return ai_image(ref[3:].strip(), out_dir)
+    return stock(ref[6:].strip(), out_dir, shape)
+
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
@@ -166,8 +249,9 @@ if __name__ == "__main__":
     ap.add_argument("--shape", default="wide", choices=["wide", "square", "tall"])
     a = ap.parse_args()
     try:
-        p, c = stock(a.query, a.out_dir, a.shape)
-    except RuntimeError as e:
+        ref = a.query if a.query.startswith(("ai:", "stock:")) else "stock:" + a.query
+        p, c = _resolve_into(ref, a.out_dir, a.shape)
+    except (RuntimeError, KeyError) as e:
         sys.exit(str(e))
     print(p)
     print(c)

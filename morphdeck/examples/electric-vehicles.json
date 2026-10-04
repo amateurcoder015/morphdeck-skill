@@ -1,7 +1,7 @@
 {
   "title": "The Electric Shift",
   "theme": "emerald",
-  "options": {"slides": 11, "motion": "dramatic", "aspect": "16:9", "tone": "general audience"},
+  "options": {"slides": 11, "motion": "dramatic", "aspect": "16:9", "tone": "general audience", "density": "balanced"},
   "slides": [
     {"layout": "title", "kicker": "Transport in transition", "title": "The Electric Shift", "subtitle": "How electric cars went from niche to mainstream in five years.", "byline": "Example deck · morphdeck"},
     {"layout": "agenda", "title": "Where we're going"},

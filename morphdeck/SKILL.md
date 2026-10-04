@@ -1,6 +1,6 @@
 ---
 name: morphdeck
-description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles, animated native charts, stock photos with Ken Burns zoom and looping ambient motion, so the deck plays like one continuous film. Supports slide count, motion intensity (calm/normal/dramatic), aspect ratio (16:9, 16:10, 4:3), tone/audience and six topic-matched themes. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
+description: Turn a topic title (optionally with a short brief) into a cinematic, animated PowerPoint .pptx that uses Morph transitions, staggered entrance animations, letter-by-letter titles, animated native charts, stock or free AI-generated (Cloudflare FLUX) photos with Ken Burns zoom, a clickable agenda and looping ambient motion, so the deck plays like one continuous film. Supports slide count, content density (text-heavy, balanced, image-heavy), motion intensity (calm/normal/dramatic), aspect ratio (16:9, 16:10, 4:3), tone/audience and six topic-matched themes. Use when the user asks for a ppt, pptx, PowerPoint, slide deck or presentation about a topic and wants it to look modern, animated, fluid, cinematic or "not basic", or when they invoke /morphdeck.
 ---
 
 # morphdeck
@@ -24,7 +24,7 @@ Everything stays editable in PowerPoint's Animation Pane and Selection Pane.
 ### 1. Read the input and the options
 The user gives a **topic title** and sometimes a **brief**. They may also state options
 in plain words or as `key=value` pairs, for example
-`/morphdeck Black holes slides=8 motion=dramatic theme=midnight aspect=4:3 tone=kids images=yes`.
+`/morphdeck Black holes slides=8 motion=dramatic density=visual images=ai theme=midnight aspect=4:3 tone=kids`.
 
 | option | values | default when not stated |
 |---|---|---|
@@ -33,7 +33,9 @@ in plain words or as `key=value` pairs, for example
 | `theme` | see step 2 | picked from the topic |
 | `aspect` | `16:9`, `16:10`, `4:3` | `16:9` |
 | `tone` | free text: `exec`, `academic`, `kids`, `casual`, `persuasive`, … | inferred from the topic and audience |
-| `images` | `yes`, `no`, or local paths and URLs the user provides | `yes` when photos would help the story, `no` for abstract topics |
+| `density` | `text` (content-heavy), `balanced`, `visual` (image-heavy) | `balanced` |
+| `images` | `stock`, `ai`, `mixed`, `none`, or local paths and URLs the user provides | `stock` when photos would help the story; `ai` when the user asks for it or the topic is imaginary or abstract |
+| `agenda` | `yes`, `no` | `yes` for decks of 10 or more slides with 2 or more sections |
 | `brand` | hex colours | theme colours |
 
 Hit the slide count exactly when the user gives one. Ask a question only when
@@ -59,7 +61,7 @@ Run `python3 scripts/build_deck.py --list-themes` to see them:
 
 When the user gives brand colours, add `"theme_overrides": {"accent": "HEX", "accent2": "HEX"}`.
 
-### 3. Write the storyline for the tone
+### 3. Write the storyline for the tone and density
 Write it as a short film:
 - **Slide 1 `title`**: hook kicker, title, one-line promise.
 - **Slide 2**: a `statement` with the big idea, or an `agenda` for decks of 10 or more slides.
@@ -75,9 +77,22 @@ How each tone changes the writing:
 - **kids**: simple words, one idea per slide, questions, `calm` or `normal` motion, bright themes.
 - **persuasive** or pitch: problem → stakes → solution → proof → call to action, `dramatic` motion.
 
-Text budgets (fonts shrink to fit, but less text looks better): titles ≤ 8 words,
-up to 5 bullet points of ≤ 12 words each, card text ≤ 18 words, statement ≤ 25 words,
-timeline and process step text ≤ 14 words.
+How each density changes the deck (the build prints a check and warns if the deck drifts):
+
+| density | images | text | favoured layouts |
+|---|---|---|---|
+| `text` (content-heavy) | ≤ 25% of slides, only where they explain something | up to 70 words a slide; 5–6 bullets; full sentences in `detail` | `detail`, `bullets`, `cards`, `compare`, `timeline`, `chart`, `stat` |
+| `balanced` | 20–55% of slides | about 45 words a slide | a mix of everything |
+| `visual` (image-heavy) | ≥ 50% of slides | about 25 words a slide; titles ≤ 6 words; ≤ 3 bullets | `image`, `gallery`, `split` and `bullets` with `image`, `quote` with a photo, `stat`, `question` |
+
+Text budgets for `balanced` (fonts shrink to fit, but less text looks better): titles
+≤ 8 words, up to 5 bullet points of ≤ 12 words each, card text ≤ 18 words,
+statement ≤ 25 words, timeline and process step text ≤ 14 words.
+
+**Clickable agenda:** an `agenda` slide lists the `section` titles automatically.
+Each item is a hyperlink to its section, and each section slide gets a small
+"← Agenda" link back. Morph plays on every jump, so the presenter can navigate
+in any order. Turn this off with `"options": {"clickable_agenda": false}`.
 
 Layout fields: [references/spec.md](references/spec.md). Examples:
 [examples/black-holes.json](examples/black-holes.json) and
@@ -91,9 +106,21 @@ photos, and `images` on `gallery`) accept:
 - `"https://…"`: downloaded once.
 - `"stock:<search words>"`: a stock photo. The search uses Pexels if `PEXELS_API_KEY`
   is set, otherwise Openverse (Creative Commons, no key needed).
+- `"ai:<prompt>"`: an image generated by Cloudflare Workers AI (FLUX.1 schnell). This is free
+  for about 170 images a day. It needs `CF_ACCOUNT_ID` and `CF_API_TOKEN` in the environment
+  or in a `.env` file (spec folder, current folder, or `~/.config/morphdeck/.env`). Without
+  keys it falls back to a stock search on the prompt's first words, and the build says so.
+
+How to choose with `images=`: `stock` uses `stock:` everywhere. `ai` uses `ai:` everywhere.
+`mixed` uses `stock:` for real places, objects and events, and `ai:` for concepts,
+metaphors, the future or imaginary scenes. `none` uses no images, so pick text layouts.
 
 Write concrete, visual search words, such as `stock:wind turbines at sunset` rather than
-`stock:renewable energy policy`. Credits are added to that slide's speaker notes
+`stock:renewable energy policy`. Write AI prompts as one or two sentences naming the
+subject, style (photo, 3D render, illustration), composition, lighting and palette. Match
+the palette to the theme, e.g. "deep navy and violet, cinematic lighting" for `midnight`.
+Leave room for the text: say "subject on the right, empty dark space on the left" for
+`image` slides. Never ask Flux to draw words. Output is square and gets cropped to the frame. Credits are added to that slide's speaker notes
 automatically. Downloads are cached in `images/` next to the spec. A new search takes
 about 30–120 s; the build prints a warning and carries on if nothing is found.
 Never use stock photos to show specific real people. Use initials (the default in
@@ -126,7 +153,7 @@ PowerPoint, skip this step and say so.
 
 ### 7. Deliver
 Give the `.pptx` path and the options you chose (theme, motion, aspect, slide
-count, tone). Tell the user:
+count, tone, density, image source). Tell the user:
 - Play it as a slideshow in **PowerPoint 2019+ / Microsoft 365**. Keynote and Google
   Slides replace Morph with a fade.
 - The **Unbounded** font must be installed (free on Google Fonts).

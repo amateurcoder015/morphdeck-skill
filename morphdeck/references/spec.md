@@ -6,7 +6,8 @@ A spec is one JSON object:
 {
   "title": "Deck title (stored in file properties)",
   "theme": "midnight",
-  "options": {"slides": 10, "motion": "normal", "aspect": "16:9", "tone": "exec"},
+  "options": {"slides": 10, "motion": "normal", "aspect": "16:9", "tone": "exec",
+              "density": "balanced", "clickable_agenda": true},
   "theme_overrides": {"accent": "FF3366"},
   "fonts": {"heading": "Unbounded", "body": "Unbounded"},
   "slides": [ { "layout": "title", "...": "..." } ]
@@ -23,15 +24,17 @@ Only `slides` is required. Every slide can also carry `"notes": "speaker notes"`
 | `motion` | `calm` / `normal` / `dramatic` | Morph speed, delay between items, rise distance, zoom depth, letter-by-letter titles (off in `calm`), ring spin per slide, sway and float size, Ken Burns depth. |
 | `aspect` | `16:9` / `16:10` / `4:3` | Slide size. Layouts reflow, and round shapes stay round. |
 | `tone` | free text | Guides the writing only; the script ignores it. |
+| `density` | `text` / `balanced` / `visual` | The build prints the deck's image share and words per slide, and warns if they don't match. |
+| `clickable_agenda` | `true` / `false` | Default `true`: agenda items link to their slides, and section slides link back to the agenda. |
 
 ## Layouts
 
-`*` = required. Image fields accept a local path, a URL or `stock:<search words>`.
+`*` = required. Image fields accept a local path, a URL, `stock:<search words>` or `ai:<prompt>`.
 
 | layout | fields | what it looks like / animates |
 |---|---|---|
 | `title` | `title`*, `kicker`, `subtitle`, `byline` | Big title built letter by letter, kicker in tracked caps, subtitle rises in. |
-| `agenda` | `title`, `items` (≤ 7) | Numbered list on the right of a divider. If `items` is left out, it lists the deck's `section` titles. |
+| `agenda` | `title`, `items` (≤ 7, strings or `{text, goto}`) | Numbered list on the right of a divider. If `items` is left out, it lists the deck's `section` titles. Items are clickable: string items link to the matching section, and `goto` (1-based slide number) links anywhere. |
 | `section` | `title`*, `number`, `subtitle` | Chapter divider. The number zooms in inside the ring. |
 | `statement` | `text`*, `attribution` | One big sentence on a floating panel, revealed word by word. |
 | `question` | `text`*, `kicker`, `subtitle` | Centred question inside the ring, revealed word by word. A pause slide. |
@@ -39,6 +42,7 @@ Only `slides` is required. Every slide can also carry `"notes": "speaker notes"`
 | `bullets` | `title`*, `points`* (≤ 6), `aside` or `image` | Points rise in with coloured dots. The right-hand column shows a short `aside` phrase or a photo. |
 | `stat` | `value`*, `suffix`, `label`*, `note`, `context` | Huge number zooms in. `context` sits inside the ring. |
 | `chart` | `title`*, `type`*, `categories`*, `series`*, `takeaway`, `caption`, `source`, `number_format`, `axis_format` | Native, editable PowerPoint chart in theme colours. Columns wipe up, bars and lines wipe across, and donut and pie charts wheel in. `takeaway` is a big 2–4 word conclusion on the side panel. |
+| `detail` | `title`*, `intro`, `points`* (≤ 8) | Content-heavy slide: an intro paragraph and points in two columns with accent markers. For `density: text`. |
 | `cards` | `title`*, `cards`* (2–4 × `{title, text}`) | Numbered cards rise in one after another. |
 | `people` | `title`*, `people`* (2–4 × `{name, role, text, image}`) | Circular photos, or initials when no photo is given, with name, role and a line of text. |
 | `timeline` | `title`*, `steps`* (3–6 × `{label, text}`) | The accent bar morphs into the axis, and nodes build left to right. |

@@ -76,6 +76,8 @@ POSES = {
                       disc=(12.1, 0.8, 0.5, 0.5), panel=(0, 0, 0.16, DH), bar=(0.9, 5.05, 1.2, 0.09)),
     "chart":     dict(ga=(8.2, 1.2, 7.0, 7.0), gb=(-3.0, -3.5, 5.5, 5.5), ring=(10.1, -1.2, 3.2, 3.2),
                       disc=(12.4, 6.3, 0.4, 0.4), panel=(9.45, 2.0, 3.0, 4.75), bar=(0.9, 1.75, 1.0, 0.09)),
+    "detail":    dict(ga=(9.4, -4.2, 7.0, 7.0), gb=(-3.2, 4.8, 5.0, 5.0), ring=(11.7, 5.3, 3.0, 3.0),
+                      disc=(12.45, 0.6, 0.35, 0.35), panel=(6.64, 3.0, 0.03, 3.85), bar=(0.9, 1.75, 1.0, 0.09)),
     "cards":     dict(ga=(8.5, -4.0, 7.5, 7.5), gb=(-2.5, 4.4, 5.5, 5.5), ring=(10.9, -1.6, 3.4, 3.4),
                       disc=(12.25, 0.55, 0.4, 0.4), panel=(0, 6.95, DW, 0.55), bar=(0.9, 1.85, 1.0, 0.09)),
     "people":    dict(ga=(-2.0, -4.2, 7.0, 7.0), gb=(9.0, 4.2, 6.0, 6.0), ring=(11.6, 5.4, 3.0, 3.0),
@@ -257,6 +259,10 @@ class Deck:
         self.blank = self.prs.slide_layouts[6]
         self.layout_count = {}
         self.credits = []
+        opts = spec.get("options", {})
+        self.links = []  # (shape, target slide index) wired up after every slide exists
+        self.clickable = opts.get("clickable_agenda", True)
+        self.agenda_idx = next((i for i, x in enumerate(spec["slides"]) if x.get("layout") == "agenda"), None)
 
     # -- geometry -----------------------------------------------------------
 
@@ -423,6 +429,12 @@ class Deck:
             anim = Anim(self.m)
             self.credits = []
             getattr(self, "L_" + layout)(slide, s, anim, stage)
+            if layout == "section" and self.clickable and self.agenda_idx is not None:
+                back = self.text(slide, "back", DW - 2.6, 0.4, 2.0, 0.35, [
+                    {"text": "← " + self.spec["slides"][self.agenda_idx].get("title", "Agenda"), "size": 11,
+                     "font": self.head_font, "color": self.t["muted"]}], align=PP_ALIGN.RIGHT)
+                self.links.append((back, self.agenda_idx))
+                anim.add("fade", back, 1500, 600)
             # ambient loops on the stage: gentle float + a slow sway
             anim.add("float", stage["disc"], 200, 2600)
             anim.add("sway", stage["ring"], 0, 6000)
@@ -432,6 +444,8 @@ class Deck:
             if idx:
                 add_morph(slide, int(self.t["tempo"] * self.m["tempo"] * 1000))
             anim.attach(slide)
+        for shape, j in self.links:  # hyperlinks; the target slide's Morph plays on the jump
+            shape.click_action.target_slide = self.prs.slides[j]
         return self.prs
 
     def _credit(self, credit):
@@ -474,8 +488,14 @@ class Deck:
 
     def L_agenda(self, slide, s, a, st):
         t = self.t
-        items = s.get("items") or [x.get("title", "") for x in self.spec["slides"] if x.get("layout") == "section"]
-        items = items[:7]
+        sections = [i for i, x in enumerate(self.spec["slides"]) if x.get("layout") == "section"]
+        raw = s.get("items") or [{"text": self.spec["slides"][i].get("title", ""), "goto": i + 1} for i in sections]
+        items, targets = [], []
+        for i, it in enumerate(raw[:7]):
+            it = {"text": it} if isinstance(it, str) else it
+            items.append(it["text"])
+            # explicit 1-based "goto", else the i-th section slide
+            targets.append(it["goto"] - 1 if it.get("goto") else (sections[i] if i < len(sections) else None))
         h = self.text(slide, "title", 0.9, 1.0, 4.6, 2.2, [self.head(s.get("title", "Agenda"), 4.6, 2.2, 44)],
                       anchor=MSO_ANCHOR.BOTTOM)
         a.add("letters", h, 0, 450)
@@ -491,6 +511,12 @@ class Deck:
             tx = self.text(slide, f"item{i}", 7.35, y, 5.2, row, [
                 {"text": it, "size": size, "bold": True, "font": self.head_font, "color": t["text"]}],
                 anchor=MSO_ANCHOR.MIDDLE)
+            if self.clickable and targets[i] is not None and 0 <= targets[i] < len(self.spec["slides"]):
+                arrow = tx.text_frame.paragraphs[0].add_run()
+                arrow.text = "  →"
+                arrow.font.size, arrow.font.name = Pt(size), self.head_font
+                arrow.font.color.rgb = RGBColor.from_string(t["accent2"])
+                self.links += [(num, targets[i]), (tx, targets[i])]
             d = 500 + i * 200
             a.add("fade", num, d, 500)
             a.add("rise", tx, d + 80, 600)
@@ -700,6 +726,35 @@ class Deck:
             src = self.text(slide, "source", 0.9, 6.95, 8.0, 0.35,
                             [{"text": "Source: " + s["source"], "size": 9, "color": t["muted"]}])
             a.add("fade", src, 2000, 500)
+
+    def L_detail(self, slide, s, a, st):
+        """Content-heavy slide: title, an intro paragraph and up to 8 points in two columns."""
+        t = self.t
+        self.title_block(slide, s, a)
+        top = 2.05
+        if s.get("intro"):
+            it = self.text(slide, "intro", 0.9, top, 11.5, 0.85, [self.body(s["intro"], 11.5, 0.85, 17, 11)])
+            a.add("fade", it, 400, 700)
+            top += 1.0
+        pts = s.get("points", [])[:8]
+        cols = [pts[: (len(pts) + 1) // 2], pts[(len(pts) + 1) // 2:]]
+        rows = max(1, len(cols[0]))
+        row = (6.9 - top) / rows
+        size = min([self.fit(p, 5.0, row - 0.12, 17, 10, wf=0.60, lh=1.4) for p in pts] or [15])
+        k = 0
+        for c, col in enumerate(cols):
+            x = 0.9 + c * 5.95
+            for r, p in enumerate(col):
+                y = top + r * row
+                mk = self.shape(slide, MSO_SHAPE.RECTANGLE, f"mark{k}", x, y + size / 72 * 0.3, 0.05, size / 72 * 0.9)
+                solid(mk, t["accent"] if c == 0 else t["accent2"])
+                no_line(mk)
+                tx = self.text(slide, f"point{k}", x + 0.25, y, 5.0, row - 0.08,
+                               [{"text": p, "size": size, "color": t["text"], "lh": 1.2}])
+                d = 600 + k * 150
+                a.add("wipe", mk, d, 300, dir="up")
+                a.add("rise", tx, d + 50, 550)
+                k += 1
 
     def L_cards(self, slide, s, a, st):
         t = self.t
@@ -1078,6 +1133,40 @@ class Anim:
                 f'{iterate}<p:childTnLst>{body}</p:childTnLst></p:cTn></p:par>')
 
 
+DENSITY = {  # target share of slides carrying a photo, max average words per slide
+    "text": (0.0, 0.25, 70), "balanced": (0.2, 0.55, 45), "visual": (0.5, 1.0, 25),
+}
+
+
+def _words(v):
+    if isinstance(v, str):
+        return len(v.split()) if not v.startswith(("stock:", "ai:", "http")) else 0
+    if isinstance(v, list):
+        return sum(_words(x) for x in v)
+    if isinstance(v, dict):
+        return sum(_words(x) for k, x in v.items() if k not in ("notes", "layout", "image", "goto"))
+    return 0
+
+
+def density_report(spec, density):
+    """One-line summary plus warnings when the spec drifts from the requested density."""
+    slides = spec["slides"]
+    has_img = sum(1 for x in slides if x.get("image") or x.get("layout") == "gallery"
+                  or any(p.get("image") for p in x.get("people", [])))
+    share = has_img / max(1, len(slides))
+    avg = sum(_words(x) for x in slides) / max(1, len(slides))
+    lo, hi, max_words = DENSITY[density]
+    msg = f"density '{density}': {has_img}/{len(slides)} slides with images, {avg:.0f} words/slide"
+    warn = []
+    if share < lo:
+        warn.append(f"fewer images than '{density}' suggests (aim for ≥{lo:.0%})")
+    if share > hi:
+        warn.append(f"more images than '{density}' suggests (aim for ≤{hi:.0%})")
+    if avg > max_words:
+        warn.append(f"wordier than '{density}' suggests (aim for ≤{max_words} words/slide)")
+    return msg + ("" if not warn else "\nwarning: " + "; ".join(warn))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("spec", nargs="?")
@@ -1115,6 +1204,9 @@ def main():
     got = len(spec["slides"])
     note = f" (options.slides asked for {want})" if want and want != got else ""
     print(f"wrote {args.out}: {got} slides{note}, theme '{name}', motion '{motion}', aspect {aspect}")
+    density = opts.get("density", "balanced")
+    if density in DENSITY:
+        print(density_report(spec, density))
 
 
 if __name__ == "__main__":
